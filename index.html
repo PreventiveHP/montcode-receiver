@@ -2,100 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER TACTICAL TEST</title>
+    <title>RECEIVER SECURE - MontCode™</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-black text-white font-mono p-6 min-h-screen">
-
     <div class="max-w-2xl mx-auto">
-        <h1 class="text-[#ccff00] text-xl font-black italic mb-4 uppercase tracking-tighter">
-            > MONTCODE BRIDGE DEBUGGER v5.9
-        </h1>
+        <h1 class="text-[#ccff00] text-xl font-black italic mb-4 uppercase leading-tight">> MONTCODE SECURE BRIDGE (E2EE)</h1>
         
-        <div id="status" class="bg-zinc-900 p-4 border border-zinc-800 rounded-t-xl flex justify-between items-center">
-            <span class="text-[10px] text-zinc-500 uppercase tracking-widest">System Status:</span>
-            <span id="state-text" class="text-yellow-500 font-bold uppercase text-sm animate-pulse">INITIALIZING...</span>
-        </div>
-
-        <div id="log-console" class="bg-zinc-950 border-x border-b border-zinc-800 p-4 h-[400px] overflow-y-auto text-[11px] leading-relaxed shadow-2xl">
-            <p class="text-zinc-700 italic">[SYSTEM] Awaiting tactical pulse...</p>
-        </div>
-
-        <div class="mt-4 flex justify-between items-center text-[9px] text-zinc-600 uppercase tracking-widest">
-            <span>Cluster: US2</span>
-            <span id="channel-name">Channel: --</span>
+        <div id="log-console" class="bg-zinc-950 border border-zinc-800 p-4 h-[450px] overflow-y-auto text-[11px] shadow-2xl rounded-xl">
+            <p class="text-zinc-700 italic">[SYSTEM] Awaiting encrypted pulse...</p>
         </div>
     </div>
 
     <script>
-        // Habilitar logs en la consola del navegador
-        Pusher.logToConsole = true;
-
-        // 1. Configuración de Pusher (Igual que en el Sender)
-        const pusher = new Pusher('284fc98940a4b6d4c359', { 
-            cluster: 'us2',
-            forceTLS: true
-        });
-
+        const SECRET_PHRASE = "MONTCODE-MED-2026";
+        const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
         const logConsole = document.getElementById('log-console');
-        const stateText = document.getElementById('state-text');
-        const channelDisplay = document.getElementById('channel-name');
 
         function addLog(msg, color = "#555") {
             const p = document.createElement('p');
-            p.className = "mb-1 border-l-2 border-zinc-800 pl-2";
+            p.className = "mb-2 border-l-2 border-zinc-800 pl-2";
             p.style.color = color;
-            const time = new Date().toLocaleTimeString([], { hour12: false });
-            p.innerHTML = `<span class="text-zinc-700">[${time}]</span> ${msg}`;
+            p.innerHTML = `<span class="text-zinc-700">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
             logConsole.appendChild(p);
             logConsole.scrollTop = logConsole.scrollHeight;
         }
 
-        // 2. Monitorear estados de conexión
-        pusher.connection.bind('state_change', (states) => {
-            addLog(`CONNECTION STATE: ${states.current.toUpperCase()}`, "#aaa");
-            stateText.innerText = states.current.toUpperCase();
-            
-            if(states.current === 'connected') {
-                stateText.style.color = "#ccff00";
-                stateText.classList.remove('animate-pulse');
-            }
-        });
-
-        // 3. SUSCRIPCIÓN TÁCTICA
-        // IMPORTANTE: El Relay añade 'rescue-' al ID. 
-        // Si el Sender usa 'TEST-ID', aquí escuchamos 'rescue-TEST-ID'
-        const targetID = "TEST-ID"; 
-        const fullChannelName = 'rescue-' + targetID;
-        const channel = pusher.subscribe(fullChannelName);
+        const channel = pusher.subscribe('rescue-TEST-ID');
         
-        channelDisplay.innerText = `Listening: ${fullChannelName}`;
-
-        channel.bind('pusher:subscription_succeeded', () => {
-            addLog(`SUBSCRIPTION SUCCESS: Active on '${fullChannelName}'`, "#ccff00");
-        });
-
-        // 4. ESCUCHADOR DE EVENTO (Debe ser 'new-reading' como en el Relay)
         channel.bind('new-reading', function(data) {
-            addLog("!!! INCOMING DATA DETECTED !!!", "#ccff00");
-            
-            // Si el dato viene en el campo 'message' o 'provider' (según tu Relay)
-            const content = data.provider || data.message || JSON.stringify(data);
-            
-            addLog(`PAYLOAD: ${content}`, "#fff");
-            
-            // Feedback háptico visual
-            document.body.style.backgroundColor = "#111";
-            setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 100);
-            
-            console.log("Evento capturado:", data);
-        });
+            const encryptedData = data.message;
+            addLog("RAW DATA RECEIVED: " + encryptedData, "#444"); // Muestra el código cifrado
 
-        // Manejo de errores
-        pusher.connection.bind('error', (err) => {
-            addLog("CRITICAL ERROR: " + (err.message || "Pusher failed"), "#ff3b3b");
+            try {
+                // DESCIFRADO
+                const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_PHRASE);
+                const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+                if(!originalText) throw new Error();
+
+                addLog("DECRYPTED MESSAGE: " + originalText, "#ccff00");
+                addLog("------------------------------------------", "#222");
+            } catch (e) {
+                addLog("ERROR: Could not decrypt message. Security Breach?", "#ff3b3b");
+            }
         });
     </script>
 </body>
