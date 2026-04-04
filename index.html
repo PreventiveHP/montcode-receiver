@@ -1,9 +1,9 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER - MontCode™</title>
+    <title>RECEIVER MONITOR - MontCode™</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -15,10 +15,10 @@
                 <h1 class="text-[#ccff00] text-2xl font-black italic uppercase leading-none tracking-tighter">
                     > MONTCODE MONITOR
                 </h1>
-                <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Direct Tactical Feed</p>
+                <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Direct Feed Mode</p>
             </div>
-            <div id="connection-status" class="mt-4 md:mt-0 text-[9px] bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-[#ccff00] font-bold uppercase tracking-widest">
-                CONNECTED
+            <div id="connection-status" class="mt-4 md:mt-0 text-[9px] bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-yellow-500 font-bold uppercase tracking-widest">
+                CONNECTING...
             </div>
         </div>
         
@@ -29,6 +29,7 @@
 
     <script>
         const logConsole = document.getElementById('log-console');
+        const statusBadge = document.getElementById('connection-status');
 
         function addLog(msg, color = "#fff") {
             const p = document.createElement('p');
@@ -41,15 +42,25 @@
         }
 
         const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
-        const channel = pusher.subscribe('rescue-TEST-ID');
-        
-        channel.bind('new-reading', function(data) {
-            // Recibe directamente el campo 'text' enviado por el Sender
-            const info = data.text || data.message || "No Data";
-            addLog("PULSE RECEIVED: " + info, "#ccff00");
+
+        pusher.connection.bind('state_change', (states) => {
+            statusBadge.innerText = states.current.toUpperCase();
+            if(states.current === 'connected') {
+                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 border-[#ccff00]/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest";
+                addLog("LINK ESTABLISHED", "#ccff00");
+            }
         });
 
-        addLog("RECEIVER ACTIVE ON CHANNEL: rescue-TEST-ID", "#444");
+        const channel = pusher.subscribe('rescue-TEST-ID');
+        
+        // ESCUCHAMOS EL EVENTO 'new-reading' Y MOSTRAMOS EL CAMPO 'text'
+        channel.bind('new-reading', function(data) {
+            const mensaje = data.text || data.message || "Sin datos";
+            addLog("PULSE DETECTED: " + mensaje, "#ccff00");
+            addLog("------------------------------------------", "#111");
+        });
+
+        addLog("SYSTEM ONLINE: Monitoring rescue-TEST-ID", "#444");
     </script>
 </body>
-</html>
+</html>  
