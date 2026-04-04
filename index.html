@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -32,22 +32,35 @@
             logConsole.scrollTop = logConsole.scrollHeight;
         }
 
-        const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
+        // Configuración Pusher (usando tu Key original)
+        const pusher = new Pusher('284fc98940a4b6d4c359', { 
+            cluster: 'us2', 
+            forceTLS: true 
+        });
 
         pusher.connection.bind('state_change', (states) => {
             statusBadge.innerText = states.current.toUpperCase();
             if(states.current === 'connected') {
-                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 px-3 py-1 rounded-full text-[9px] font-bold";
+                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest";
                 addLog("TUNNEL ACTIVE - READY FOR DATA");
             }
         });
 
-        // SINTONIZACIÓN EXACTA SEGÚN TU RELAY
+        // --- LA CONEXIÓN CRÍTICA ---
+        // 1. Nos suscribimos al canal que define tu Relay: 'test-channel'
         const channel = pusher.subscribe('test-channel');
+
+        // 2. Escuchamos el evento que dispara tu Relay: 'test-event'
         channel.bind('test-event', function(data) {
-            // El Relay envía el dato dentro del campo 'text'
-            const info = data.text || "Pulse Received";
+            // 3. Capturamos el campo 'text' que tu Relay genera 
+            // a partir del 'message' enviado por el Sender.
+            const info = data.text || "No payload detected";
             addLog(info);
+            
+            // Log secundario opcional para ver el timestamp del Relay
+            if(data.timestamp) {
+                console.log("Relay Sync Time: " + data.timestamp);
+            }
         });
     </script>
 </body>
