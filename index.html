@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RECEIVER TEST</title>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+</head>
+<body style="background: #000; color: #fff; font-family: sans-serif;">
+    <h1>RECEIVER (RECEPTOR)</h1>
+    <div id="status" style="color: yellow;">Estado: Conectando...</div>
+    <hr>
+    <div id="mensajes">Esperando datos...</div>
+
+    <script>
+        // 1. Iniciar Pusher
+        const pusher = new Pusher('284fc98940a4b6d4c359', { 
+            cluster: 'us2',
+            forceTLS: true
+        });
+
+        // 2. Ver si conecta de verdad
+        pusher.connection.bind('connected', () => {
+            document.getElementById('status').innerText = "Estado: ¡CONECTADO ONLINE!";
+            document.getElementById('status').style.color = "#00ff00";
+        });
+
+        // 3. Suscribirse al canal "test-channel"
+        const channel = pusher.subscribe('test-channel');
+
+        // 4. Escuchar el evento "test-event"
+        channel.bind('test-event', function(data) {
+            console.log("¡Llegó algo!", data);
+            const box = document.getElementById('mensajes');
+            box.innerHTML += `<p style="color: #ccff00;">> RECIBIDO: ${JSON.stringify(data)}</p>`;
+            alert("¡DATOS RECIBIDOS!");
+        });
+
+        // Log de errores
+        pusher.connection.bind('error', (err) => {
+            document.getElementById('status').innerText = "Estado: ERROR DE CONEXIÓN";
+            console.error(err);
+        });
+    </script>
+</body>
+</html>
