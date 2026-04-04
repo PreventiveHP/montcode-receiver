@@ -7,18 +7,16 @@
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white font-mono p-10 min-h-screen">
-    <div class="max-w-3xl mx-auto">
-        <div class="mb-6 flex justify-between items-end border-b border-zinc-800 pb-4">
-            <h1 class="text-[#ccff00] text-2xl font-black italic uppercase tracking-tighter">> MONTCODE MONITOR</h1>
-            <div id="connection-status" class="text-[9px] bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-yellow-500 font-bold uppercase tracking-widest">
-                CONNECTING...
-            </div>
+<body class="bg-black text-white font-mono p-6 min-h-screen">
+    <div class="max-w-3xl mx-auto border-b border-zinc-800 pb-4 mb-6 flex justify-between items-end">
+        <h1 class="text-[#ccff00] text-2xl font-black italic uppercase tracking-tighter">> MONITOR ACTIVE</h1>
+        <div id="connection-status" class="text-[9px] bg-zinc-900 px-3 py-1 rounded-full text-yellow-500 font-bold uppercase tracking-widest">
+            Connecting...
         </div>
-        
-        <div id="log-console" class="bg-zinc-950 border border-zinc-900 p-6 h-[500px] overflow-y-auto text-[13px] rounded-2xl shadow-2xl">
-            <p class="text-zinc-700 italic opacity-50">[SYSTEM] Initialization complete. Awaiting tactical pulse...</p>
-        </div>
+    </div>
+    
+    <div id="log-console" class="bg-zinc-950 border border-zinc-900 p-6 h-[500px] overflow-y-auto text-[14px] rounded-2xl shadow-2xl">
+        <p class="text-zinc-700 italic opacity-50">[SYSTEM] Awaiting pulse on test-channel...</p>
     </div>
 
     <script>
@@ -27,7 +25,7 @@
 
         function addLog(msg) {
             const p = document.createElement('p');
-            p.className = "mb-4 border-l-2 border-[#ccff00]/40 pl-4 py-2 bg-[#ccff00]/5 rounded-r-lg text-white";
+            p.className = "mb-4 border-l-2 border-[#ccff00] pl-4 py-2 bg-[#ccff00]/5 text-white";
             const time = new Date().toLocaleTimeString();
             p.innerHTML = `<span class="text-zinc-600 text-[10px] block font-bold mb-1">${time}</span> ${msg}`;
             logConsole.appendChild(p);
@@ -39,16 +37,17 @@
         pusher.connection.bind('state_change', (states) => {
             statusBadge.innerText = states.current.toUpperCase();
             if(states.current === 'connected') {
-                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 border-[#ccff00]/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest";
-                addLog("SECURE LINK ESTABLISHED");
+                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 px-3 py-1 rounded-full text-[9px] font-bold";
+                addLog("TUNNEL ACTIVE - READY FOR DATA");
             }
         });
 
-        // Sintonizamos el canal exacto y el evento que envía tu relay
-        const channel = pusher.subscribe('rescue-TEST-ID');
-        channel.bind('new-reading', function(data) {
-            const mensaje = data.text || data.message || "No data content";
-            addLog(mensaje);
+        // SINTONIZACIÓN EXACTA SEGÚN TU RELAY
+        const channel = pusher.subscribe('test-channel');
+        channel.bind('test-event', function(data) {
+            // El Relay envía el dato dentro del campo 'text'
+            const info = data.text || "Pulse Received";
+            addLog(info);
         });
     </script>
 </body>
