@@ -1,43 +1,65 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
-    <title>RECEIVER TEST</title>
+    <title>RECEIVER TACTICAL TEST</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 </head>
-<body style="background: #000; color: #fff; font-family: sans-serif;">
-    <h1>RECEIVER (RECEPTOR)</h1>
-    <div id="status" style="color: yellow;">Estado: Conectando...</div>
-    <hr>
-    <div id="mensajes">Esperando datos...</div>
+<body style="background: #000; color: #fff; font-family: monospace; padding: 20px;">
+    <h1 style="color: #ccff00;">> MONTCODE BRIDGE DEBUGGER</h1>
+    
+    <div id="status" style="background: #111; padding: 10px; border: 1px solid #333; margin-bottom: 10px;">
+        STATUS: <span id="state-text" style="color: yellow;">INITIALIZING...</span>
+    </div>
+
+    <div style="background: #050505; border: 1px solid #222; padding: 15px; height: 300px; overflow-y: auto;" id="log-console">
+        <p style="color: #444;">[SYSTEM] Awaiting pulse...</p>
+    </div>
 
     <script>
-        // 1. Iniciar Pusher
+        // Habilitar logs detallados de Pusher en la consola del navegador (F12)
+        Pusher.logToConsole = true;
+
+        // 1. Configuración (Verifica que tu DASHBOARD diga Cluster: us2)
         const pusher = new Pusher('284fc98940a4b6d4c359', { 
             cluster: 'us2',
             forceTLS: true
         });
 
-        // 2. Ver si conecta de verdad
-        pusher.connection.bind('connected', () => {
-            document.getElementById('status').innerText = "Estado: ¡CONECTADO ONLINE!";
-            document.getElementById('status').style.color = "#00ff00";
+        const logConsole = document.getElementById('log-console');
+        const stateText = document.getElementById('state-text');
+
+        function addLog(msg, color = "#888") {
+            const p = document.createElement('p');
+            p.style.color = color;
+            p.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logConsole.appendChild(p);
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+
+        // 2. Monitorear estados de conexión
+        pusher.connection.bind('state_change', (states) => {
+            addLog(`CONNECTION: ${states.current.toUpperCase()}`, "#aaa");
+            stateText.innerText = states.current.toUpperCase();
+            if(states.current === 'connected') stateText.style.color = "#00ff00";
         });
 
-        // 3. Suscribirse al canal "test-channel"
+        // 3. Suscribirse (CUIDADO: En la consola de Pusher el channel debe ser EXACTO)
         const channel = pusher.subscribe('test-channel');
 
-        // 4. Escuchar el evento "test-event"
-        channel.bind('test-event', function(data) {
-            console.log("¡Llegó algo!", data);
-            const box = document.getElementById('mensajes');
-            box.innerHTML += `<p style="color: #ccff00;">> RECIBIDO: ${JSON.stringify(data)}</p>`;
-            alert("¡DATOS RECIBIDOS!");
+        channel.bind('pusher:subscription_succeeded', () => {
+            addLog("SUBSCRIPTION: SUCCESS -> Listening to 'test-channel'", "#ccff00");
         });
 
-        // Log de errores
+        // 4. EL ESCUCHADOR DE EVENTOS
+        channel.bind('test-event', function(data) {
+            addLog("!!! DATA RECEIVED !!!", "#ccff00");
+            addLog("PAYLOAD: " + JSON.stringify(data), "#fff");
+            alert("¡EVENTO CAPTURADO!");
+        });
+
+        // Manejo de errores
         pusher.connection.bind('error', (err) => {
-            document.getElementById('status').innerText = "Estado: ERROR DE CONEXIÓN";
-            console.error(err);
+            addLog("ERROR: " + (err.message || "Pusher connection failed"), "#ff3b3b");
         });
     </script>
 </body>
