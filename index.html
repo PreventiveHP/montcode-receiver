@@ -1,66 +1,101 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER - MontCode™</title>
+    <title>RECEIVER TACTICAL TEST</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-black text-white font-mono p-6 min-h-screen">
-    <div class="max-w-3xl mx-auto border-b border-zinc-800 pb-4 mb-6 flex justify-between items-end">
-        <h1 class="text-[#ccff00] text-2xl font-black italic uppercase tracking-tighter">> MONITOR ACTIVE</h1>
-        <div id="connection-status" class="text-[9px] bg-zinc-900 px-3 py-1 rounded-full text-yellow-500 font-bold uppercase tracking-widest">
-            Connecting...
+
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-[#ccff00] text-xl font-black italic mb-4 uppercase tracking-tighter">
+            > MONTCODE BRIDGE DEBUGGER v5.9
+        </h1>
+        
+        <div id="status" class="bg-zinc-900 p-4 border border-zinc-800 rounded-t-xl flex justify-between items-center">
+            <span class="text-[10px] text-zinc-500 uppercase tracking-widest">System Status:</span>
+            <span id="state-text" class="text-yellow-500 font-bold uppercase text-sm animate-pulse">INITIALIZING...</span>
         </div>
-    </div>
-    
-    <div id="log-console" class="bg-zinc-950 border border-zinc-900 p-6 h-[500px] overflow-y-auto text-[14px] rounded-2xl shadow-2xl">
-        <p class="text-zinc-700 italic opacity-50">[SYSTEM] Awaiting pulse on test-channel...</p>
+
+        <div id="log-console" class="bg-zinc-950 border-x border-b border-zinc-800 p-4 h-[400px] overflow-y-auto text-[11px] leading-relaxed shadow-2xl">
+            <p class="text-zinc-700 italic">[SYSTEM] Awaiting tactical pulse...</p>
+        </div>
+
+        <div class="mt-4 flex justify-between items-center text-[9px] text-zinc-600 uppercase tracking-widest">
+            <span>Cluster: US2</span>
+            <span id="channel-name">Channel: --</span>
+        </div>
     </div>
 
     <script>
-        const logConsole = document.getElementById('log-console');
-        const statusBadge = document.getElementById('connection-status');
+        // Habilitar logs en la consola del navegador
+        Pusher.logToConsole = true;
 
-        function addLog(msg) {
+        // 1. Configuración de Pusher (Igual que en el Sender)
+        const pusher = new Pusher('284fc98940a4b6d4c359', { 
+            cluster: 'us2',
+            forceTLS: true
+        });
+
+        const logConsole = document.getElementById('log-console');
+        const stateText = document.getElementById('state-text');
+        const channelDisplay = document.getElementById('channel-name');
+
+        function addLog(msg, color = "#555") {
             const p = document.createElement('p');
-            p.className = "mb-4 border-l-2 border-[#ccff00] pl-4 py-2 bg-[#ccff00]/5 text-white";
-            const time = new Date().toLocaleTimeString();
-            p.innerHTML = `<span class="text-zinc-600 text-[10px] block font-bold mb-1">${time}</span> ${msg}`;
+            p.className = "mb-1 border-l-2 border-zinc-800 pl-2";
+            p.style.color = color;
+            const time = new Date().toLocaleTimeString([], { hour12: false });
+            p.innerHTML = `<span class="text-zinc-700">[${time}]</span> ${msg}`;
             logConsole.appendChild(p);
             logConsole.scrollTop = logConsole.scrollHeight;
         }
 
-        // Configuración Pusher (usando tu Key original)
-        const pusher = new Pusher('284fc98940a4b6d4c359', { 
-            cluster: 'us2', 
-            forceTLS: true 
-        });
-
+        // 2. Monitorear estados de conexión
         pusher.connection.bind('state_change', (states) => {
-            statusBadge.innerText = states.current.toUpperCase();
+            addLog(`CONNECTION STATE: ${states.current.toUpperCase()}`, "#aaa");
+            stateText.innerText = states.current.toUpperCase();
+            
             if(states.current === 'connected') {
-                statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest";
-                addLog("TUNNEL ACTIVE - READY FOR DATA");
+                stateText.style.color = "#ccff00";
+                stateText.classList.remove('animate-pulse');
             }
         });
 
-        // --- LA CONEXIÓN CRÍTICA ---
-        // 1. Nos suscribimos al canal que define tu Relay: 'test-channel'
-        const channel = pusher.subscribe('test-channel');
+        // 3. SUSCRIPCIÓN TÁCTICA
+        // IMPORTANTE: El Relay añade 'rescue-' al ID. 
+        // Si el Sender usa 'TEST-ID', aquí escuchamos 'rescue-TEST-ID'
+        const targetID = "TEST-ID"; 
+        const fullChannelName = 'rescue-' + targetID;
+        const channel = pusher.subscribe(fullChannelName);
+        
+        channelDisplay.innerText = `Listening: ${fullChannelName}`;
 
-        // 2. Escuchamos el evento que dispara tu Relay: 'test-event'
-        channel.bind('test-event', function(data) {
-            // 3. Capturamos el campo 'text' que tu Relay genera 
-            // a partir del 'message' enviado por el Sender.
-            const info = data.text || "No payload detected";
-            addLog(info);
+        channel.bind('pusher:subscription_succeeded', () => {
+            addLog(`SUBSCRIPTION SUCCESS: Active on '${fullChannelName}'`, "#ccff00");
+        });
+
+        // 4. ESCUCHADOR DE EVENTO (Debe ser 'new-reading' como en el Relay)
+        channel.bind('new-reading', function(data) {
+            addLog("!!! INCOMING DATA DETECTED !!!", "#ccff00");
             
-            // Log secundario opcional para ver el timestamp del Relay
-            if(data.timestamp) {
-                console.log("Relay Sync Time: " + data.timestamp);
-            }
+            // Si el dato viene en el campo 'message' o 'provider' (según tu Relay)
+            const content = data.provider || data.message || JSON.stringify(data);
+            
+            addLog(`PAYLOAD: ${content}`, "#fff");
+            
+            // Feedback háptico visual
+            document.body.style.backgroundColor = "#111";
+            setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 100);
+            
+            console.log("Evento capturado:", data);
+        });
+
+        // Manejo de errores
+        pusher.connection.bind('error', (err) => {
+            addLog("CRITICAL ERROR: " + (err.message || "Pusher failed"), "#ff3b3b");
         });
     </script>
 </body>
