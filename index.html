@@ -3,44 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER MONITOR - MontCode™</title>
+    <title>RECEIVER - MontCode™</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white font-mono p-4 md:p-10 min-h-screen">
-
+<body class="bg-black text-white font-mono p-10 min-h-screen">
     <div class="max-w-3xl mx-auto">
-        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-800 pb-4">
-            <div>
-                <h1 class="text-[#ccff00] text-2xl font-black italic uppercase leading-none tracking-tighter">
-                    > MONTCODE MONITOR
-                </h1>
-                <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Tactical Digital Tube</p>
-            </div>
-            <div id="connection-status" class="mt-4 md:mt-0 text-[9px] bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-yellow-500 font-bold uppercase tracking-widest">
+        <div class="mb-6 flex justify-between items-end border-b border-zinc-800 pb-4">
+            <h1 class="text-[#ccff00] text-2xl font-black italic uppercase tracking-tighter">> MONTCODE MONITOR</h1>
+            <div id="connection-status" class="text-[9px] bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-yellow-500 font-bold uppercase tracking-widest">
                 CONNECTING...
             </div>
         </div>
         
-        <div id="log-console" class="bg-zinc-950 border border-zinc-900 p-4 h-[600px] overflow-y-auto text-[13px] shadow-2xl rounded-2xl custom-scrollbar">
-            <p class="text-zinc-700 italic opacity-50">[SYSTEM] Awaiting tactical pulse...</p>
+        <div id="log-console" class="bg-zinc-950 border border-zinc-900 p-6 h-[500px] overflow-y-auto text-[13px] rounded-2xl shadow-2xl">
+            <p class="text-zinc-700 italic opacity-50">[SYSTEM] Initialization complete. Awaiting tactical pulse...</p>
         </div>
     </div>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-    </style>
 
     <script>
         const logConsole = document.getElementById('log-console');
         const statusBadge = document.getElementById('connection-status');
 
-        function addLog(msg, color = "#fff") {
+        function addLog(msg) {
             const p = document.createElement('p');
-            p.className = "mb-4 border-l-2 border-[#ccff00]/30 pl-4 py-2 bg-[#ccff00]/5 rounded-r-lg";
-            p.style.color = color;
+            p.className = "mb-4 border-l-2 border-[#ccff00]/40 pl-4 py-2 bg-[#ccff00]/5 rounded-r-lg text-white";
             const time = new Date().toLocaleTimeString();
             p.innerHTML = `<span class="text-zinc-600 text-[10px] block font-bold mb-1">${time}</span> ${msg}`;
             logConsole.appendChild(p);
@@ -53,16 +40,15 @@
             statusBadge.innerText = states.current.toUpperCase();
             if(states.current === 'connected') {
                 statusBadge.className = "text-[#ccff00] bg-[#ccff00]/10 border-[#ccff00]/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest";
-                addLog("SYSTEM ONLINE: Monitoring rescue-TEST-ID", "#444");
+                addLog("SECURE LINK ESTABLISHED");
             }
         });
 
+        // Sintonizamos el canal exacto y el evento que envía tu relay
         const channel = pusher.subscribe('rescue-TEST-ID');
-        
         channel.bind('new-reading', function(data) {
-            // Captura el campo 'text' que viene del Relay
-            const mensaje = data.text || "No data payload";
-            addLog(mensaje, "#ccff00");
+            const mensaje = data.text || data.message || "No data content";
+            addLog(mensaje);
         });
     </script>
 </body>
