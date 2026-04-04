@@ -70,11 +70,12 @@
             }
         });
 
-        // 3. ESCUCHAR CANAL
+        // 3. ESCUCHAR CANAL (Detección de múltiples eventos)
         const channel = pusher.subscribe('rescue-TEST-ID');
         
-        channel.bind('new-reading', function(data) {
-            // Detección automática del campo de datos
+        // Función procesadora única
+        const procesarDato = function(data) {
+            // El Relay puede enviar el dato en 'message', 'text' o 'provider'
             const encryptedData = data.message || data.text || data.provider;
             
             if (!encryptedData) {
@@ -100,7 +101,12 @@
             } catch (e) {
                 addLog("CRITICAL ERROR: DECRYPTION FAILED. POSSIBLE SECURITY BREACH.", "#ff3b3b");
             }
-        });
+        };
+
+        // Escuchamos todos los nombres de evento posibles para mayor seguridad
+        channel.bind('new-reading', procesarDato);
+        channel.bind('message', procesarDato);
+        channel.bind('reading', procesarDato);
     </script>
 </body>
 </html>
