@@ -29,7 +29,7 @@
 
         <div class="mt-4 flex justify-between items-center text-[9px] text-zinc-600 uppercase tracking-[0.2em] font-bold">
             <span>Security: AES-256</span>
-            <span>Channel: rescue-TEST-ID</span>
+            <span id="active-channels">Monitoring: 2 Channels</span>
         </div>
     </div>
 
@@ -70,24 +70,20 @@
             }
         });
 
-        // 3. ESCUCHAR CANAL (Detección de múltiples eventos)
-        const channel = pusher.subscribe('rescue-TEST-ID');
-        
-        // Función procesadora única
+        // 3. PROCESADOR DE DATOS (Radar Universal)
         const procesarDato = function(data) {
-            // El Relay puede enviar el dato en 'message', 'text' o 'provider'
-            const encryptedData = data.message || data.text || data.provider;
+            // Buscamos el dato en cualquier campo posible enviado por el Relay
+            const encryptedData = data.message || data.text || data.provider || data.payload;
             
             if (!encryptedData) {
                 addLog("WARN: Received packet with no payload", "#ff3b3b");
                 return;
             }
 
-            addLog("INCOMING ENCRYPTED PULSE DETECTED", "#444");
-            addLog("RAW: " + encryptedData.substring(0, 30) + "...", "#222");
+            addLog("INCOMING PULSE DETECTED...", "#444");
 
             try {
-                // PROCESO DE DESCIFRADO
+                // INTENTO DE DESCIFRADO
                 const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_PHRASE);
                 const originalText = bytes.toString(CryptoJS.enc.Utf8);
 
@@ -99,14 +95,24 @@
                 addLog("------------------------------------------", "#111");
                 
             } catch (e) {
-                addLog("CRITICAL ERROR: DECRYPTION FAILED. POSSIBLE SECURITY BREACH.", "#ff3b3b");
+                // FALLBACK: Si no se puede descifrar, mostramos el RAW para diagnóstico
+                addLog("RAW DATA (NOT DECRYPTED): " + encryptedData, "#333");
             }
         };
 
-        // Escuchamos todos los nombres de evento posibles para mayor seguridad
-        channel.bind('new-reading', procesarDato);
-        channel.bind('message', procesarDato);
-        channel.bind('reading', procesarDato);
+        // 4. ESCUCHA DE CANALES (test-channel para compatibilidad y rescue-TEST-ID para el futuro)
+        const channel1 = pusher.subscribe('rescue-TEST-ID');
+        const channel2 = pusher.subscribe('test-channel');
+
+        const eventos = ['new-reading', 'message', 'reading'];
+
+        [channel1, channel2].forEach(chan => {
+            eventos.forEach(evt => {
+                chan.bind(evt, procesarDato);
+            });
+        });
+
+        addLog("RADAR ACTIVE: Listening on test-channel & rescue-TEST-ID", "#222");
     </script>
 </body>
 </html>
