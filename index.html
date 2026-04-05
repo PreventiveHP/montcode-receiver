@@ -85,7 +85,7 @@
                             <div id="loader-feedback" class="hidden w-2 h-2 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                         </button>
                     </div>
-                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Enter clinical recommendations..."></textarea>
+                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Type recommendation (e.g. Drink more water, adjust dose)..."></textarea>
                 </div>
             </div>
 
@@ -125,6 +125,7 @@
         let gluHistory = JSON.parse(localStorage.getItem('montcode_glu_history')) || [];
         let charts = {};
 
+        // INICIALIZACIÓN PUSHER
         const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
 
         function initCharts() {
@@ -184,10 +185,10 @@
             document.getElementById('sample-count').innerText = bpHistory.length + gluHistory.length;
         }
 
-        // LÓGICA DE ENVÍO DE FEEDBACK AL PACIENTE
+        // --- LÓGICA DE ENVÍO DE FEEDBACK (HOLA MUNDO) ---
         async function sendFeedback() {
             const feedbackText = document.getElementById('dr-feedback').value;
-            if (!feedbackText) return alert("Feedback is empty.");
+            if (!feedbackText) return;
 
             const btn = document.getElementById('btn-send-feedback');
             const loader = document.getElementById('loader-feedback');
@@ -196,14 +197,11 @@
             loader.classList.remove('hidden');
 
             try {
-                // Usamos el formato CMD:FEEDBACK|MSG: para que la App Paciente lo identifique
-                const response = await fetch('https://api.pusher.com/apps/1897282/events', {
+                // RUTA DE IDA: El Dr. publica en 'test-channel'
+                // Enviamos texto libre sin procesar cifras
+                await fetch('https://api.pusher.com/apps/1897282/events', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Aquí se usaría la lógica de firma de Pusher o tu worker intermedio
-                        // Para pruebas locales, esto dispara el evento al canal
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: "test-event",
                         channel: "test-channel",
@@ -211,11 +209,10 @@
                     })
                 });
                 
-                alert("CLINICAL FEEDBACK TRANSMITTED");
+                document.getElementById('dr-feedback').value = ""; // Limpiar tras enviar
+                console.log("Transmission Successful: " + feedbackText);
             } catch (e) {
-                // Como es local sin server-side, simulamos el disparo si usas un trigger directo
-                console.log("Feedback data created for transmission...");
-                alert("FEEDBACK PREPARED FOR SYNC");
+                console.error("Link Failed", e);
             } finally {
                 btn.disabled = false;
                 loader.classList.add('hidden');
@@ -240,17 +237,21 @@
             doc.save(`VITAL_STREAM_${Date.now()}.pdf`);
         }
 
+        // --- RECEPTOR: ESCUCHA LO QUE VIENE DEL PACIENTE ---
         const channel = pusher.subscribe("test-channel");
         channel.bind('test-event', function(data) {
             const content = data.text || "";
             const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            // Ignoramos nuestros propios comandos de feedback en este monitor
+            // FILTRO DE SEGURIDAD: 
+            // Si el mensaje empieza por CMD:FEEDBACK, lo ignoramos (es un eco de lo que enviamos nosotros)
             if (content.startsWith("CMD:FEEDBACK")) return;
 
+            // Procesamos Vitales (Lo que el paciente envía)
             if (content.startsWith("CMD:BP")) {
                 const parts = content.split('|');
-                const sys = parts[1].split(':')[1]; const dia = parts[2].split(':')[1];
+                const sys = parts[1].split(':')[1]; 
+                const dia = parts[2].split(':')[1];
                 bpHistory.push({ time: currentTime, sys, dia });
                 localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
                 updateChart(charts.bp, sys, currentTime);
@@ -274,6 +275,3 @@
     </script>
 </body>
 </html>
-
-
-
