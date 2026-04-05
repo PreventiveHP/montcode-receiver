@@ -21,19 +21,21 @@
     <div class="max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-8 border-b border-zinc-800/50 pb-6">
             <div class="flex items-center gap-6">
-                <img src="logo.png.jpg" alt="MontCode Logo" class="w-16 h-16 object-contain rounded-xl border border-zinc-800 shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+                <div class="w-16 h-16 bg-[#ccff00] flex items-center justify-center rounded-xl shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+                    <span class="text-black font-black text-2xl">M</span>
+                </div>
                 <div>
                     <h1 class="text-[#ccff00] text-3xl font-black italic tracking-tighter uppercase leading-none">
-                        MONTCODE<span class="text-white ml-2 opacity-80">VITAL STREAM MONITOR</span>
+                        MONTCODE<span class="text-white ml-2 opacity-80">VITAL MONITOR</span>
                     </h1>
-                    <p class="text-[10px] text-zinc-400 uppercase tracking-[0.2em] mt-1 font-bold">
-                        Created by Provider • Tested by Patient • Trusted for Life
+                    <p class="text-[10px] text-zinc-400 uppercase tracking-[0.2em] mt-1 font-bold italic">
+                        Secured Provider Station v6.3
                     </p>
                 </div>
             </div>
             <div class="text-right flex flex-col items-end gap-2">
                 <span id="state-text" class="text-[10px] font-bold uppercase px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-yellow-500">SIGNAL SEARCHING...</span>
-                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">STATION: PROVIDER_SECURE_NODE_6.3</p>
+                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">STATION: PROVIDER_NODE_SECURE</p>
             </div>
         </div>
 
@@ -41,10 +43,7 @@
             <div class="lg:col-span-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
-                            <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic">> BLOOD PRESSURE</p>
-                            <span id="bp-status-badge" class="text-[9px] px-3 py-1 rounded-full font-bold uppercase bg-zinc-800 text-zinc-500">INIT</span>
-                        </div>
+                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> BLOOD PRESSURE</p>
                         <div class="flex items-baseline gap-2 mb-4">
                             <span id="last-bp" class="text-6xl font-black text-[#00ffff] tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">--/--</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mmHg</span>
@@ -59,12 +58,9 @@
                     </div>
 
                     <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
-                            <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic">> GLUCOSE MONITOR</p>
-                            <span id="glu-status-badge" class="text-[9px] px-3 py-1 rounded-full font-bold uppercase bg-zinc-800 text-zinc-500">INIT</span>
-                        </div>
+                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> GLUCOSE MONITOR</p>
                         <div class="flex items-baseline gap-2 mb-4">
-                            <span id="last-glu" class="text-6xl font-black text-[#ccff00] tracking-tighter drop-shadow-[0_0_15px_rgba(204,255,0,0.3)]">---</span>
+                            <span id="last-glu" class="text-6xl font-black text-[#ccff00] tracking-tighter drop-shadow-[0_0_15_rgba(204,255,0,0.3)]">---</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mg/dL</span>
                         </div>
                         <div class="h-32 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
@@ -80,41 +76,39 @@
                 <div class="glass-panel rounded-3xl p-6 border-l-4 border-blue-500">
                     <div class="flex justify-between items-center mb-4">
                         <p class="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] italic">Provider Clinical Feedback</p>
-                        <button onclick="sendFeedback()" id="btn-send-feedback" class="bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black px-4 py-1.5 rounded-lg transition-all uppercase flex items-center gap-2">
-                            <span>Push to Patient</span>
+                        <button onclick="sendFeedback()" id="btn-send-feedback" class="bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black px-6 py-2 rounded-lg transition-all uppercase flex items-center gap-2">
+                            <span>Push to Patient Terminal</span>
                             <div id="loader-feedback" class="hidden w-2 h-2 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                         </button>
                     </div>
-                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Type recommendation (e.g. Drink more water, adjust dose)..."></textarea>
+                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Type recommendation (e.g. Add Losartan 50mg, Drink more water)..."></textarea>
                 </div>
             </div>
 
             <div class="lg:col-span-4 space-y-4">
                 <div class="glass-panel depth-card p-6 rounded-3xl border-t-2 border-t-[#ccff00]">
                     <h3 class="text-xs font-black text-white mb-6 uppercase tracking-tighter italic">Clinical Operations</h3>
-                    <button onclick="generateProviderPDF()" class="w-full bg-[#ccff00] hover:bg-white text-black font-black py-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#ccff00]/10 flex flex-col items-center group mb-4">
+                    <button onclick="generateProviderPDF()" class="w-full bg-[#ccff00] hover:bg-white text-black font-black py-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#ccff00]/10 flex flex-col items-center mb-4">
                         <span class="text-sm uppercase tracking-tighter">Export EMR Report</span>
                         <span class="text-[9px] opacity-60 font-bold">PDF CLINICAL GRADE</span>
                     </button>
-                    <button onclick="clearLogs()" class="w-full bg-zinc-900/50 border border-zinc-800 text-zinc-600 hover:text-red-500 font-bold py-3 rounded-xl transition-all uppercase text-[9px] tracking-widest mb-6">
-                        Purge History
+                    <button onclick="clearLogs()" class="w-full bg-zinc-900/50 border border-zinc-800 text-zinc-600 hover:text-red-500 font-bold py-3 rounded-xl transition-all uppercase text-[9px] tracking-widest">
+                        Purge Session History
                     </button>
-                    <div class="space-y-4 border-t border-zinc-800 pt-6">
+                    
+                    <div class="mt-6 pt-6 border-t border-zinc-800 space-y-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-[10px] text-zinc-500 font-bold">TOTAL SAMPLES:</span>
+                            <span class="text-[10px] text-zinc-500 font-bold uppercase">Patient Logs:</span>
                             <span id="sample-count" class="text-sm font-black text-white">0</span>
-                        </div>
-                        <div class="flex justify-between items-center text-[10px]">
-                            <span class="text-zinc-500 font-bold">INTEGRITY:</span>
-                            <span class="font-black text-green-500 italic">SECURE / LOCAL DB</span>
                         </div>
                     </div>
                 </div>
-                <div class="p-6 bg-zinc-900/40 border border-zinc-800 rounded-3xl">
-                    <p class="text-[9px] text-zinc-500 font-bold mb-3 italic uppercase tracking-widest">Clinical Data Notice:</p>
-                    <p class="text-[10px] text-zinc-500/80 leading-relaxed italic uppercase">
-                        This data is for wellness monitoring and triage optimization; it does not replace official EMR records.
-                    </p>
+
+                <div id="patient-notes-terminal" class="bg-zinc-900/30 border border-zinc-800 p-4 rounded-2xl h-48 overflow-y-auto">
+                    <p class="text-[9px] text-zinc-500 font-bold uppercase mb-2 italic">Incoming Patient Notes:</p>
+                    <div id="notes-content" class="text-[10px] space-y-2">
+                        <p class="text-zinc-700 italic">No notes received yet...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -125,21 +119,20 @@
         let gluHistory = JSON.parse(localStorage.getItem('montcode_glu_history')) || [];
         let charts = {};
 
-        // INICIALIZACIÓN PUSHER
-        const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
+        // CONFIG PUSHER
+        const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2' });
+        const channel = pusher.subscribe("test-channel");
 
         function initCharts() {
-            const chartConfig = (color) => ({
+            const config = (color) => ({
                 type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: color }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { x: { ticks: { color: '#444', font: { size: 8 } }, grid: { display: false } }, y: { display: false } } 
-                }
+                data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 2, tension: 0.4, pointRadius: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
             });
-            charts.bp = new Chart(document.getElementById('bpChart'), chartConfig('#00ffff'));
-            charts.glu = new Chart(document.getElementById('gluChart'), chartConfig('#ccff00'));
+            charts.bp = new Chart(document.getElementById('bpChart'), config('#00ffff'));
+            charts.glu = new Chart(document.getElementById('gluChart'), config('#ccff00'));
+            
+            // Cargar datos previos
             bpHistory.forEach(d => updateChart(charts.bp, d.sys, d.time));
             gluHistory.forEach(d => updateChart(charts.glu, d.val, d.time));
         }
@@ -147,58 +140,21 @@
         function updateChart(chart, val, timeLabel) {
             chart.data.labels.push(timeLabel);
             chart.data.datasets[0].data.push(val);
-            if (chart.data.labels.length > 10) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+            if (chart.data.labels.length > 15) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
             chart.update('none');
         }
 
-        function getAHAClass(sys, dia) {
-            if (sys >= 180 || dia >= 120) return { l: "CRISIS", c: "#ff0000" };
-            if (sys >= 140 || dia >= 90) return { l: "STAGE 2", c: "#f97316" };
-            if (sys >= 130 || dia >= 80) return { l: "STAGE 1", c: "#fbbf24" };
-            return { l: "NORMAL", c: "#22c55e" };
-        }
-
-        function updateUI() {
-            if(bpHistory.length > 0) {
-                const last = bpHistory[bpHistory.length - 1];
-                const avgSys = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.sys),0)/bpHistory.length);
-                const avgDia = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.dia),0)/bpHistory.length);
-                const map = Math.round((avgSys + (2 * avgDia)) / 3);
-                const cls = getAHAClass(last.sys, last.dia);
-                document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
-                document.getElementById('map-val').innerText = `${map} mmHg`;
-                document.getElementById('avg-sys').innerText = `${avgSys} AVG`;
-                const badge = document.getElementById('bp-status-badge');
-                badge.innerText = cls.l; badge.style.color = cls.c; badge.style.backgroundColor = cls.c + "22";
-            }
-            if(gluHistory.length > 0) {
-                const last = gluHistory[gluHistory.length - 1];
-                const avgGlu = Math.round(gluHistory.reduce((a,b)=>a+parseInt(b.val),0)/gluHistory.length);
-                const a1c = ((46.7 + avgGlu) / 28.7).toFixed(1);
-                document.getElementById('last-glu').innerText = last.val;
-                document.getElementById('a1c-val').innerText = `${a1c}%`;
-                document.getElementById('avg-glu').innerText = `${avgGlu} mg/dL`;
-                const gBadge = document.getElementById('glu-status-badge');
-                gBadge.innerText = last.val > 140 ? "ELEVATED" : "OPTIMAL";
-                gBadge.style.color = last.val > 140 ? "#fbbf24" : "#22c55e";
-            }
-            document.getElementById('sample-count').innerText = bpHistory.length + gluHistory.length;
-        }
-
-        // --- LÓGICA DE ENVÍO DE FEEDBACK (HOLA MUNDO) ---
+        // --- ENVIAR AL PACIENTE (FEEDBACK) ---
         async function sendFeedback() {
             const feedbackText = document.getElementById('dr-feedback').value;
             if (!feedbackText) return;
 
             const btn = document.getElementById('btn-send-feedback');
             const loader = document.getElementById('loader-feedback');
-            
-            btn.disabled = true;
-            loader.classList.remove('hidden');
+            btn.disabled = true; loader.classList.remove('hidden');
 
             try {
-                // RUTA DE IDA: El Dr. publica en 'test-channel'
-                // Enviamos texto libre sin procesar cifras
+                // Enviamos con el prefijo CMD:FEEDBACK para que el receptor del paciente sepa que es una instrucción
                 await fetch('https://api.pusher.com/apps/1897282/events', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -208,70 +164,83 @@
                         data: { text: `CMD:FEEDBACK|MSG:${feedbackText}` }
                     })
                 });
-                
-                document.getElementById('dr-feedback').value = ""; // Limpiar tras enviar
-                console.log("Transmission Successful: " + feedbackText);
+                document.getElementById('dr-feedback').value = "";
+                console.log("Sent: " + feedbackText);
             } catch (e) {
-                console.error("Link Failed", e);
+                console.error(e);
             } finally {
-                btn.disabled = false;
-                loader.classList.add('hidden');
+                btn.disabled = false; loader.classList.add('hidden');
             }
+        }
+
+        // --- RECIBIR DEL PACIENTE (VITALES O NOTAS) ---
+        channel.bind('test-event', function(data) {
+            const content = data.text || data.message || "";
+            if (!content || content.includes("CMD:FEEDBACK")) return; // Ignorar ecos propios
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (content.includes("CMD:BP")) {
+                const parts = content.split('|');
+                const sys = parts[1].split(':')[1];
+                const dia = parts[2].split(':')[1];
+                bpHistory.push({ time, sys, dia });
+                localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
+                updateChart(charts.bp, sys, time);
+            } 
+            else if (content.includes("CMD:GLU")) {
+                const val = content.split('|')[1].split(':')[1];
+                gluHistory.push({ time, val });
+                localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
+                updateChart(charts.glu, val, time);
+            } 
+            else {
+                // ES UNA NOTA DE TEXTO (EJ: "Hola Mundo" o "Losartan 50mg" enviado por el paciente)
+                const notesDiv = document.getElementById('notes-content');
+                if (notesDiv.innerText.includes("No notes")) notesDiv.innerHTML = "";
+                notesDiv.innerHTML = `<div class="bg-zinc-800/50 p-2 rounded border-l-2 border-[#ccff00] mb-2">
+                    <span class="text-[8px] text-zinc-500">${time}</span><br>${content}
+                </div>` + notesDiv.innerHTML;
+            }
+            updateUI();
+        });
+
+        function updateUI() {
+            if(bpHistory.length > 0) {
+                const last = bpHistory[bpHistory.length - 1];
+                document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
+                const avgSys = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.sys),0)/bpHistory.length);
+                document.getElementById('avg-sys').innerText = `${avgSys} AVG`;
+            }
+            if(gluHistory.length > 0) {
+                const last = gluHistory[gluHistory.length - 1];
+                document.getElementById('last-glu').innerText = last.val;
+                const avgGlu = Math.round(gluHistory.reduce((a,b)=>a+parseInt(b.val),0)/gluHistory.length);
+                const a1c = ((46.7 + avgGlu) / 28.7).toFixed(1);
+                document.getElementById('avg-glu').innerText = `${avgGlu} mg/dL`;
+                document.getElementById('a1c-val').innerText = `${a1c}%`;
+            }
+            document.getElementById('sample-count').innerText = bpHistory.length + gluHistory.length;
         }
 
         async function generateProviderPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const feedback = document.getElementById('dr-feedback').value;
-            doc.setFillColor(15,15,15); doc.rect(0,0,210,50,'F');
-            doc.setTextColor(204,255,0); doc.setFontSize(22); doc.text("MONTCODE VITAL STREAM REPORT", 15, 25);
-            doc.setTextColor(255,255,255); doc.setFontSize(9);
-            doc.text(`DATE: ${new Date().toLocaleString()} | NODE: SECURE_ALPHA_6.3`, 15, 38);
-            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("I. HEMODYNAMIC (AHA)", 15, 70);
-            doc.text(`BP: ${document.getElementById('last-bp').innerText} | MAP: ${document.getElementById('map-val').innerText}`, 15, 80);
-            doc.text("II. METABOLIC (ADA)", 15, 100);
-            doc.text(`GLU: ${document.getElementById('last-glu').innerText} | EST. A1C: ${document.getElementById('a1c-val').innerText}`, 15, 110);
-            if(feedback) { doc.text("III. PROVIDER NOTES", 15, 130); doc.setFontSize(10); doc.text(feedback, 15, 140, { maxWidth: 180 }); }
-            doc.setFontSize(8); doc.setTextColor(150,150,150);
-            doc.text("Disclaimer: All info provided is not based on official medical records.", 15, 280);
-            doc.save(`VITAL_STREAM_${Date.now()}.pdf`);
+            doc.text("MONTCODE CLINICAL REPORT", 10, 10);
+            doc.text(`BP Records: ${bpHistory.length}`, 10, 20);
+            doc.text(`GLU Records: ${gluHistory.length}`, 10, 30);
+            doc.save("Report.pdf");
         }
 
-        // --- RECEPTOR: ESCUCHA LO QUE VIENE DEL PACIENTE ---
-        const channel = pusher.subscribe("test-channel");
-        channel.bind('test-event', function(data) {
-            const content = data.text || "";
-            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            // FILTRO DE SEGURIDAD: 
-            // Si el mensaje empieza por CMD:FEEDBACK, lo ignoramos (es un eco de lo que enviamos nosotros)
-            if (content.startsWith("CMD:FEEDBACK")) return;
-
-            // Procesamos Vitales (Lo que el paciente envía)
-            if (content.startsWith("CMD:BP")) {
-                const parts = content.split('|');
-                const sys = parts[1].split(':')[1]; 
-                const dia = parts[2].split(':')[1];
-                bpHistory.push({ time: currentTime, sys, dia });
-                localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
-                updateChart(charts.bp, sys, currentTime);
-            } else if (content.startsWith("CMD:GLU")) {
-                const val = content.split('|')[1].split(':')[1];
-                gluHistory.push({ time: currentTime, val });
-                localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
-                updateChart(charts.glu, val, currentTime);
-            }
-            updateUI();
-        });
-
+        function clearLogs() { if(confirm("CLEAR ALL?")) { localStorage.clear(); location.reload(); } }
+        
         pusher.connection.bind('state_change', (s) => {
-            const txt = document.getElementById('state-text');
-            txt.innerText = s.current.toUpperCase();
-            if(s.current==='connected') { txt.style.color="#ccff00"; }
+            const t = document.getElementById('state-text');
+            t.innerText = s.current.toUpperCase();
+            t.style.color = s.current === 'connected' ? "#ccff00" : "#f59e0b";
         });
 
         window.onload = () => { initCharts(); updateUI(); };
-        function clearLogs() { if(confirm("ERASE ALL CLINICAL DATA?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
