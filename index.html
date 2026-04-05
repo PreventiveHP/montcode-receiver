@@ -3,60 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER TACTICAL - MontCode™</title>
+    <title>MONTCODE - PATIENT MONITOR</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white font-mono p-6 min-h-screen transition-colors duration-200">
+<body class="bg-black text-white font-mono p-4 min-h-screen">
 
-    <div class="max-w-2xl mx-auto">
-        <h1 class="text-[#ccff00] text-xl font-black italic mb-4 uppercase tracking-tighter">
-            > MONTCODE BRIDGE DEBUGGER v5.9 [DUAL SUCTION]
-        </h1>
-        
-        <div id="status" class="bg-zinc-900 p-4 border border-zinc-800 rounded-t-xl flex justify-between items-center">
-            <span class="text-[10px] text-zinc-500 uppercase tracking-widest">System Status:</span>
-            <span id="state-text" class="text-yellow-500 font-bold uppercase text-sm animate-pulse">INITIALIZING...</span>
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-end mb-6 border-b border-zinc-800 pb-4">
+            <div>
+                <h1 class="text-[#ccff00] text-2xl font-black italic tracking-tighter uppercase">
+                    > PATIENT MONITOR <span class="text-white ml-2 text-sm not-italic opacity-50">v6.0</span>
+                </h1>
+                <p class="text-[10px] text-zinc-500 uppercase tracking-[0.3em]">Active Stream: <span id="channel-display" class="text-zinc-300">--</span></p>
+            </div>
+            <div class="text-right">
+                <span id="state-text" class="text-[10px] font-bold uppercase px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-yellow-500 animate-pulse italic">Connecting...</span>
+            </div>
         </div>
 
-        <div id="log-console" class="bg-zinc-950 border-x border-b border-zinc-800 p-4 h-[400px] overflow-y-auto text-[11px] leading-relaxed shadow-2xl">
-            <p class="text-zinc-700 italic">[SYSTEM] Awaiting tactical pulse on test-channel...</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-2xl shadow-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mb-1">Blood Pressure (Last)</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="last-bp" class="text-5xl font-black text-[#00ffff] tracking-tighter">--/--</span>
+                    <span class="text-xs text-zinc-600 font-bold italic">mmHg</span>
+                </div>
+                <p id="bp-time" class="text-[9px] text-zinc-700 mt-2 uppercase font-bold tracking-tighter">Awaiting pulse...</p>
+            </div>
+
+            <div class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-2xl shadow-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+                </div>
+                <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mb-1">Glucose Level (Last)</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="last-glu" class="text-5xl font-black text-[#ccff00] tracking-tighter">---</span>
+                    <span class="text-xs text-zinc-600 font-bold italic">mg/dL</span>
+                </div>
+                <p id="glu-time" class="text-[9px] text-zinc-700 mt-2 uppercase font-bold tracking-tighter">Awaiting pulse...</p>
+            </div>
         </div>
 
-        <div class="mt-4 flex justify-between items-center text-[9px] text-zinc-600 uppercase tracking-widest">
-            <span>Cluster: US2</span>
-            <span id="channel-name">Channel: test-channel</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div id="log-console" class="bg-zinc-950 border border-zinc-800 p-4 h-[300px] overflow-y-auto text-[10px] leading-relaxed rounded-xl shadow-inner shadow-black">
+                    <p class="text-zinc-800 italic">[SYSTEM] Link established. Suction mode engaged.</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <button onclick="clearLogs()" class="w-full bg-zinc-900 border border-zinc-800 hover:bg-red-900/20 hover:border-red-900/50 text-zinc-500 hover:text-red-500 font-bold py-4 rounded-xl transition-all uppercase text-[10px] tracking-[0.2em]">
+                    Purge Local DB
+                </button>
+                <div class="p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl">
+                    <p class="text-[9px] text-zinc-600 uppercase font-bold mb-2">History Count</p>
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span>BP Records:</span>
+                        <span id="bp-count" class="text-cyan-500">0</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold mt-1">
+                        <span>GLU Records:</span>
+                        <span id="glu-count" class="text-[#ccff00]">0</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // MEMORIA LOCAL PARA TENDENCIAS (BP y GLU)
         let bpHistory = JSON.parse(localStorage.getItem('montcode_bp_history')) || [];
         let gluHistory = JSON.parse(localStorage.getItem('montcode_glu_history')) || [];
 
-        Pusher.logToConsole = true;
+        // Inicializar UI con datos previos si existen
+        updateUI();
 
-        const pusher = new Pusher('284fc98940a4b6d4c359', { 
-            cluster: 'us2',
-            forceTLS: true
-        });
-
+        const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
         const logConsole = document.getElementById('log-console');
         const stateText = document.getElementById('state-text');
-        const channelDisplay = document.getElementById('channel-name');
 
         function addLog(msg, color = "#555") {
             const p = document.createElement('p');
-            p.className = "mb-1 border-l-2 border-zinc-800 pl-2";
+            p.className = "mb-1 border-l-2 border-zinc-900 pl-2";
             p.style.color = color;
-            const time = new Date().toLocaleTimeString([], { hour12: false });
-            p.innerHTML = `<span class="text-zinc-700">[${time}]</span> ${msg}`;
+            p.innerHTML = `<span class="text-zinc-800">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
             logConsole.appendChild(p);
             logConsole.scrollTop = logConsole.scrollHeight;
         }
 
+        function updateUI() {
+            if(bpHistory.length > 0) {
+                const last = bpHistory[bpHistory.length - 1];
+                document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
+                document.getElementById('bp-time').innerText = `Rec: ${last.time}`;
+                document.getElementById('bp-count').innerText = bpHistory.length;
+            }
+            if(gluHistory.length > 0) {
+                const last = gluHistory[gluHistory.length - 1];
+                document.getElementById('last-glu').innerText = last.val;
+                document.getElementById('glu-time').innerText = `Rec: ${last.time}`;
+                document.getElementById('glu-count').innerText = gluHistory.length;
+            }
+        }
+
+        function clearLogs() {
+            if(confirm("Desea purgar la base de datos local?")) {
+                localStorage.removeItem('montcode_bp_history');
+                localStorage.removeItem('montcode_glu_history');
+                bpHistory = [];
+                gluHistory = [];
+                location.reload();
+            }
+        }
+
         pusher.connection.bind('state_change', (states) => {
-            addLog(`CONNECTION STATE: ${states.current.toUpperCase()}`, "#aaa");
             stateText.innerText = states.current.toUpperCase();
             if(states.current === 'connected') {
                 stateText.style.color = "#ccff00";
@@ -66,64 +128,37 @@
 
         const targetChannel = "test-channel"; 
         const channel = pusher.subscribe(targetChannel);
-        channelDisplay.innerText = `Listening: ${targetChannel}`;
+        document.getElementById('channel-display').innerText = targetChannel;
 
-        channel.bind('pusher:subscription_succeeded', () => {
-            addLog(`SUBSCRIPTION SUCCESS: Active on '${targetChannel}'`, "#ccff00");
-        });
-
-        // ESCUCHADOR DE EVENTO 'test-event' CON LÓGICA DUAL
         channel.bind('test-event', function(data) {
             const content = data.text || "";
-            
-            // Efecto de parpadeo táctico
-            document.body.style.backgroundColor = "#111";
+            document.body.style.backgroundColor = "#080808";
             setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 100);
 
-            // 1. DETECCIÓN DE PRESIÓN ARTERIAL (BP)
             if (content.startsWith("CMD:BP")) {
-                addLog("!!! BP VITAL SIGN DETECTED !!!", "#00ffff");
                 try {
                     const parts = content.split('|');
-                    const sysValue = parts[1].split(':')[1];
-                    const diaValue = parts[2].split(':')[1];
-
-                    const registro = {
-                        time: new Date().toLocaleString(),
-                        sys: parseInt(sysValue),
-                        dia: parseInt(diaValue)
-                    };
-
-                    bpHistory.push(registro);
+                    const sys = parts[1].split(':')[1];
+                    const dia = parts[2].split(':')[1];
+                    bpHistory.push({ time: new Date().toLocaleString(), sys, dia });
                     localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
-                    addLog(`SUCTION SUCCESS: Saved BP ${sysValue}/${diaValue}`, "#00ffff");
-                } catch(e) { addLog("PARSE ERROR: BP data corrupted", "#ff3b3b"); }
+                    addLog(`SUCTION: BP ${sys}/${dia} CAPTURED`, "#00ffff");
+                    updateUI();
+                } catch(e) { addLog("PARSE ERROR: BP", "#ff3b3b"); }
 
-            // 2. DETECCIÓN DE GLUCOSA (GLU)
             } else if (content.startsWith("CMD:GLU")) {
-                addLog("!!! GLUCOSE DATA DETECTED !!!", "#00ffff");
                 try {
                     const parts = content.split('|');
-                    const gluValue = parts[1].split(':')[1];
-
-                    const registro = {
-                        time: new Date().toLocaleString(),
-                        val: parseInt(gluValue)
-                    };
-
-                    gluHistory.push(registro);
+                    const val = parts[1].split(':')[1];
+                    gluHistory.push({ time: new Date().toLocaleString(), val });
                     localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
-                    addLog(`SUCTION SUCCESS: Saved GLU ${gluValue} mg/dL`, "#00ffff");
-                } catch(e) { addLog("PARSE ERROR: GLU data corrupted", "#ff3b3b"); }
+                    addLog(`SUCTION: GLUCOSE ${val} CAPTURED`, "#ccff00");
+                    updateUI();
+                } catch(e) { addLog("PARSE ERROR: GLU", "#ff3b3b"); }
 
             } else {
-                // Mensaje de texto o nota médica normal
-                addLog(`PAYLOAD: ${content}`, "#fff");
+                addLog(`TEXT: ${content}`, "#fff");
             }
-        });
-
-        pusher.connection.bind('error', (err) => {
-            addLog("CRITICAL ERROR: " + (err.message || "Pusher failed"), "#ff3b3b");
         });
     </script>
 </body>
