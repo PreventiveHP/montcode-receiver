@@ -1,0 +1,19 @@
+<input type="text" id="cmd" placeholder="Add Losartan 50mg..." style="padding:10px; width:80%;">
+<button onclick="send()">PUSH TO PATIENT</button>
+
+<script>
+    async function send() {
+        const val = document.getElementById('cmd').value;
+        // La URL exacta de Pusher que usamos ese día
+        await fetch('https://api.pusher.com/apps/1897282/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: "test-event",
+                channel: "test-channel",
+                data: { text: val } // Enviamos 'text' limpio
+            })
+        });
+        document.getElementById('cmd').value = "";
+    }
+</script>
