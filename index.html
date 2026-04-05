@@ -11,7 +11,7 @@
 
     <div class="max-w-2xl mx-auto">
         <h1 class="text-[#ccff00] text-xl font-black italic mb-4 uppercase tracking-tighter">
-            > MONTCODE BRIDGE DEBUGGER v5.9 [SUCTION MODE]
+            > MONTCODE BRIDGE DEBUGGER v5.9 [DUAL SUCTION]
         </h1>
         
         <div id="status" class="bg-zinc-900 p-4 border border-zinc-800 rounded-t-xl flex justify-between items-center">
@@ -30,8 +30,9 @@
     </div>
 
     <script>
-        // MEMORIA LOCAL PARA TENDENCIAS
+        // MEMORIA LOCAL PARA TENDENCIAS (BP y GLU)
         let bpHistory = JSON.parse(localStorage.getItem('montcode_bp_history')) || [];
+        let gluHistory = JSON.parse(localStorage.getItem('montcode_glu_history')) || [];
 
         Pusher.logToConsole = true;
 
@@ -63,32 +64,27 @@
             }
         });
 
-        // SINTONIZACIÓN MANUAL SEGÚN PRUEBA EXITOSA
         const targetChannel = "test-channel"; 
         const channel = pusher.subscribe(targetChannel);
-        
         channelDisplay.innerText = `Listening: ${targetChannel}`;
 
         channel.bind('pusher:subscription_succeeded', () => {
             addLog(`SUBSCRIPTION SUCCESS: Active on '${targetChannel}'`, "#ccff00");
         });
 
-        // ESCUCHADOR DE EVENTO 'test-event'
+        // ESCUCHADOR DE EVENTO 'test-event' CON LÓGICA DUAL
         channel.bind('test-event', function(data) {
-            // En tu relay exitoso, el texto viene en 'data.text'
             const content = data.text || "";
             
-            // Efecto de parpadeo al recibir
+            // Efecto de parpadeo táctico
             document.body.style.backgroundColor = "#111";
             setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 100);
 
-            // DETECCIÓN DE COMANDO BP
+            // 1. DETECCIÓN DE PRESIÓN ARTERIAL (BP)
             if (content.startsWith("CMD:BP")) {
                 addLog("!!! BP VITAL SIGN DETECTED !!!", "#00ffff");
-                
                 try {
                     const parts = content.split('|');
-                    // Extraemos los valores de CMD:BP|SYS:120|DIA:80
                     const sysValue = parts[1].split(':')[1];
                     const diaValue = parts[2].split(':')[1];
 
@@ -98,17 +94,30 @@
                         dia: parseInt(diaValue)
                     };
 
-                    // GUARDADO EN MEMORIA (Succión)
                     bpHistory.push(registro);
                     localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
-                    
                     addLog(`SUCTION SUCCESS: Saved BP ${sysValue}/${diaValue}`, "#00ffff");
-                    console.log("Database Update:", bpHistory);
-                } catch(e) {
-                    addLog("PARSE ERROR: Vital data corrupted", "#ff3b3b");
-                }
+                } catch(e) { addLog("PARSE ERROR: BP data corrupted", "#ff3b3b"); }
+
+            // 2. DETECCIÓN DE GLUCOSA (GLU)
+            } else if (content.startsWith("CMD:GLU")) {
+                addLog("!!! GLUCOSE DATA DETECTED !!!", "#00ffff");
+                try {
+                    const parts = content.split('|');
+                    const gluValue = parts[1].split(':')[1];
+
+                    const registro = {
+                        time: new Date().toLocaleString(),
+                        val: parseInt(gluValue)
+                    };
+
+                    gluHistory.push(registro);
+                    localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
+                    addLog(`SUCTION SUCCESS: Saved GLU ${gluValue} mg/dL`, "#00ffff");
+                } catch(e) { addLog("PARSE ERROR: GLU data corrupted", "#ff3b3b"); }
+
             } else {
-                // Si no es un comando, es mensaje normal
+                // Mensaje de texto o nota médica normal
                 addLog(`PAYLOAD: ${content}`, "#fff");
             }
         });
