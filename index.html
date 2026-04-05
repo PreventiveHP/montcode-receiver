@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,9 @@
     <div class="max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-8 border-b border-zinc-800/50 pb-6">
             <div class="flex items-center gap-6">
-                <img src="logo.png.jpg" alt="MontCode Logo" class="w-16 h-16 object-contain rounded-xl border border-zinc-800 shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+                <div class="w-16 h-16 bg-zinc-900 rounded-xl border border-zinc-800 shadow-[0_0_20px_rgba(204,255,0,0.2)] flex items-center justify-center">
+                    <span class="text-[#ccff00] font-black text-2xl italic">M</span>
+                </div>
                 <div>
                     <h1 class="text-[#ccff00] text-3xl font-black italic tracking-tighter uppercase leading-none">
                         MONTCODE<span class="text-white ml-2 opacity-80">VITAL MONITOR</span>
@@ -110,12 +112,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="p-6 bg-zinc-900/30 border border-zinc-800 rounded-3xl">
-                    <p class="text-[9px] text-zinc-600 font-bold mb-3 italic uppercase tracking-[0.2em]">Clinical Compliance:</p>
-                    <p class="text-[10px] text-zinc-600 leading-relaxed italic uppercase font-bold">
-                        All information is stored locally in this browser. No cloud, no HIPAA risk. Ensure station is locked when not in use.
-                    </p>
-                </div>
             </div>
         </div>
     </div>
@@ -126,6 +122,7 @@
         let charts = {};
 
         const pusher = new Pusher('284fc98940a4b6d4c359', { cluster: 'us2', forceTLS: true });
+        const channel = pusher.subscribe("test-channel");
 
         function initCharts() {
             const chartConfig = (color) => ({
@@ -140,7 +137,6 @@
             charts.bp = new Chart(document.getElementById('bpChart'), chartConfig('#00ffff'));
             charts.glu = new Chart(document.getElementById('gluChart'), chartConfig('#ccff00'));
             
-            // Cargar datos guardados
             bpHistory.forEach(d => updateChart(charts.bp, d.sys, d.time));
             gluHistory.forEach(d => updateChart(charts.glu, d.val, d.time));
         }
@@ -152,25 +148,15 @@
             chart.update('none');
         }
 
-        function getAHAClass(sys, dia) {
-            if (sys >= 180 || dia >= 120) return { l: "CRISIS", c: "#ff0000" };
-            if (sys >= 140 || dia >= 90) return { l: "STAGE 2", c: "#f97316" };
-            if (sys >= 130 || dia >= 80) return { l: "STAGE 1", c: "#fbbf24" };
-            return { l: "NORMAL", c: "#22c55e" };
-        }
-
         function updateUI() {
             if(bpHistory.length > 0) {
                 const last = bpHistory[bpHistory.length - 1];
                 const avgSys = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.sys),0)/bpHistory.length);
                 const avgDia = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.dia),0)/bpHistory.length);
                 const map = Math.round((avgSys + (2 * avgDia)) / 3);
-                const cls = getAHAClass(last.sys, last.dia);
                 document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
                 document.getElementById('map-val').innerText = `${map} mmHg`;
                 document.getElementById('avg-sys').innerText = `${avgSys} AVG`;
-                const badge = document.getElementById('bp-status-badge');
-                badge.innerText = cls.l; badge.style.color = cls.c; badge.style.backgroundColor = cls.c + "22";
             }
             if(gluHistory.length > 0) {
                 const last = gluHistory[gluHistory.length - 1];
@@ -179,14 +165,35 @@
                 document.getElementById('last-glu').innerText = last.val;
                 document.getElementById('a1c-val').innerText = `${a1c}%`;
                 document.getElementById('avg-glu').innerText = `${avgGlu} AVG`;
-                const gBadge = document.getElementById('glu-status-badge');
-                gBadge.innerText = last.val > 140 ? "ELEVATED" : "OPTIMAL";
-                gBadge.style.color = last.val > 140 ? "#fbbf24" : "#22c55e";
             }
             document.getElementById('sample-count').innerText = bpHistory.length + gluHistory.length;
         }
 
-        // --- LÓGICA DE ENVÍO CORREGIDA ---
+        // --- ESCUCHA DE DATOS (PACIENTE -> DR) ---
+        channel.bind('test-event', function(data) {
+            const content = data.text || data.message || "";
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Ignoramos ecos de feedback propios
+            if (content.includes("CMD:FEEDBACK")) return;
+
+            if (content.startsWith("CMD:BP")) {
+                const parts = content.split('|');
+                const sys = parts[1].split(':')[1];
+                const dia = parts[2].split(':')[1];
+                bpHistory.push({ time: currentTime, sys, dia });
+                localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
+                updateChart(charts.bp, sys, currentTime);
+            } else if (content.startsWith("CMD:GLU")) {
+                const val = content.split('|')[1].split(':')[1];
+                gluHistory.push({ time: currentTime, val });
+                localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
+                updateChart(charts.glu, val, currentTime);
+            }
+            updateUI();
+        });
+
+        // --- ENVÍO DE FEEDBACK (DR -> PACIENTE) ---
         async function sendFeedback() {
             const feedbackText = document.getElementById('dr-feedback').value.trim();
             if (!feedbackText) return;
@@ -200,13 +207,12 @@
             btnText.innerText = "TRANSMITTING...";
 
             try {
-                // USAMOS TU WORKER DE VERCEL PARA ENVIAR (Igual que el Sender)
                 const response = await fetch('/api/pusher-relay', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        message: `CMD:FEEDBACK|MSG:${feedbackText}`, 
-                        channel_id: "TEST-ID" 
+                        text: `CMD:FEEDBACK|MSG:${feedbackText}`, 
+                        channel_id: "test-channel" 
                     })
                 });
                 
@@ -222,9 +228,9 @@
             } catch (e) {
                 btnText.innerText = "LINK FAILED ❌";
                 setTimeout(() => {
-                    btnText.innerText = "Transmit to Patient";
                     btn.disabled = false;
                     loader.classList.add('hidden');
+                    btnText.innerText = "Transmit to Patient";
                 }, 2000);
             }
         }
@@ -232,43 +238,11 @@
         async function generateProviderPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const feedback = document.getElementById('dr-feedback').value;
-            doc.setFillColor(15,15,15); doc.rect(0,0,210,50,'F');
-            doc.setTextColor(204,255,0); doc.setFontSize(22); doc.text("MONTCODE VITAL STREAM REPORT", 15, 25);
-            doc.setTextColor(255,255,255); doc.setFontSize(9);
-            doc.text(`DATE: ${new Date().toLocaleString()} | NODE: SECURE_ALPHA_6.4`, 15, 38);
-            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("I. HEMODYNAMIC (AHA)", 15, 70);
-            doc.text(`BP: ${document.getElementById('last-bp').innerText} | MAP: ${document.getElementById('map-val').innerText}`, 15, 80);
-            doc.text("II. METABOLIC (ADA)", 15, 100);
-            doc.text(`GLU: ${document.getElementById('last-glu').innerText} | EST. A1C: ${document.getElementById('a1c-val').innerText}`, 15, 110);
-            if(feedback) { doc.text("III. PROVIDER NOTES", 15, 130); doc.setFontSize(10); doc.text(feedback, 15, 140, { maxWidth: 180 }); }
-            doc.setFontSize(8); doc.setTextColor(150,150,150);
-            doc.text("Disclaimer: All info provided is not based on official medical records.", 15, 280);
-            doc.save(`VITAL_STREAM_${Date.now()}.pdf`);
+            doc.text("MONTCODE CLINICAL REPORT", 10, 10);
+            doc.text(`BP: ${document.getElementById('last-bp').innerText}`, 10, 20);
+            doc.text(`GLU: ${document.getElementById('last-glu').innerText}`, 10, 30);
+            doc.save(`EMR_${Date.now()}.pdf`);
         }
-
-        const channel = pusher.subscribe("test-channel");
-        channel.bind('test-event', function(data) {
-            const content = data.text || "";
-            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            // Ignoramos nuestros propios comandos de feedback
-            if (content.startsWith("CMD:FEEDBACK")) return;
-
-            if (content.startsWith("CMD:BP")) {
-                const parts = content.split('|');
-                const sys = parts[1].split(':')[1]; const dia = parts[2].split(':')[1];
-                bpHistory.push({ time: currentTime, sys, dia });
-                localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
-                updateChart(charts.bp, sys, currentTime);
-            } else if (content.startsWith("CMD:GLU")) {
-                const val = content.split('|')[1].split(':')[1];
-                gluHistory.push({ time: currentTime, val });
-                localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
-                updateChart(charts.glu, val, currentTime);
-            }
-            updateUI();
-        });
 
         pusher.connection.bind('state_change', (s) => {
             const txt = document.getElementById('state-text');
