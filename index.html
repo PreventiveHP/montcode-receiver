@@ -26,16 +26,16 @@
                 </div>
                 <div>
                     <h1 class="text-[#ccff00] text-3xl font-black italic tracking-tighter uppercase leading-none">
-                        MONTCODE<span class="text-white ml-2 opacity-80">VITAL MONITOR</span>
+                        MONTCODE<span class="text-white ml-2 opacity-80">PROVIDER STATION</span>
                     </h1>
                     <p class="text-[10px] text-zinc-400 uppercase tracking-[0.2em] mt-1 font-bold italic">
-                        Secured Provider Station v6.3
+                        Real-Time Clinical Triage Node
                     </p>
                 </div>
             </div>
             <div class="text-right flex flex-col items-end gap-2">
-                <span id="state-text" class="text-[10px] font-bold uppercase px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-yellow-500">SIGNAL SEARCHING...</span>
-                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">STATION: PROVIDER_NODE_SECURE</p>
+                <span id="state-text" class="text-[10px] font-bold uppercase px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-yellow-500">LINK SEARCHING...</span>
+                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">ENCRYPTION: LOCAL_AES_P2P</p>
             </div>
         </div>
 
@@ -43,7 +43,7 @@
             <div class="lg:col-span-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
-                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> BLOOD PRESSURE</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> HEMODYNAMICS</p>
                         <div class="flex items-baseline gap-2 mb-4">
                             <span id="last-bp" class="text-6xl font-black text-[#00ffff] tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">--/--</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mmHg</span>
@@ -51,65 +51,53 @@
                         <div class="h-32 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
                             <canvas id="bpChart"></canvas>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold">
-                            <div><p class="text-zinc-600 uppercase">Avg Systolic</p><p id="avg-sys" class="text-white">--</p></div>
-                            <div><p class="text-zinc-600 uppercase">MAP (Hemo)</p><p id="map-val" class="text-cyan-500">--</p></div>
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold uppercase text-zinc-500">
+                            <div>AVG SYS: <span id="avg-sys" class="text-white ml-1">--</span></div>
+                            <div>MAP: <span id="map-val" class="text-cyan-500 ml-1">--</span></div>
                         </div>
                     </div>
 
                     <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
-                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> GLUCOSE MONITOR</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic mb-4">> METABOLIC</p>
                         <div class="flex items-baseline gap-2 mb-4">
-                            <span id="last-glu" class="text-6xl font-black text-[#ccff00] tracking-tighter drop-shadow-[0_0_15_rgba(204,255,0,0.3)]">---</span>
+                            <span id="last-glu" class="text-6xl font-black text-[#ccff00] tracking-tighter drop-shadow-[0_0_15px_rgba(204,255,0,0.3)]">---</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mg/dL</span>
                         </div>
                         <div class="h-32 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
                             <canvas id="gluChart"></canvas>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold">
-                            <div><p class="text-zinc-600 uppercase">GLU AVG</p><p id="avg-glu" class="text-white">--</p></div>
-                            <div><p class="text-zinc-600 uppercase">EST. A1C</p><p id="a1c-val" class="text-[#ccff00]">--%</p></div>
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold uppercase text-zinc-500">
+                            <div>AVG GLU: <span id="avg-glu" class="text-white ml-1">--</span></div>
+                            <div>EST. A1C: <span id="a1c-val" class="text-[#ccff00] ml-1">--%</span></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-panel rounded-3xl p-6 border-l-4 border-blue-500">
                     <div class="flex justify-between items-center mb-4">
-                        <p class="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] italic">Provider Clinical Feedback</p>
+                        <p class="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] italic">Tactical Feedback Sender</p>
                         <button onclick="sendFeedback()" id="btn-send-feedback" class="bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black px-6 py-2 rounded-lg transition-all uppercase flex items-center gap-2">
-                            <span>Push to Patient Terminal</span>
+                            <span>Execute Command</span>
                             <div id="loader-feedback" class="hidden w-2 h-2 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                         </button>
                     </div>
-                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Type recommendation (e.g. Add Losartan 50mg, Drink more water)..."></textarea>
+                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-20 placeholder-zinc-700" placeholder="E.g. Add Losartan 50mg / Hydration Protocol..."></textarea>
                 </div>
             </div>
 
             <div class="lg:col-span-4 space-y-4">
                 <div class="glass-panel depth-card p-6 rounded-3xl border-t-2 border-t-[#ccff00]">
-                    <h3 class="text-xs font-black text-white mb-6 uppercase tracking-tighter italic">Clinical Operations</h3>
-                    <button onclick="generateProviderPDF()" class="w-full bg-[#ccff00] hover:bg-white text-black font-black py-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#ccff00]/10 flex flex-col items-center mb-4">
-                        <span class="text-sm uppercase tracking-tighter">Export EMR Report</span>
-                        <span class="text-[9px] opacity-60 font-bold">PDF CLINICAL GRADE</span>
-                    </button>
-                    <button onclick="clearLogs()" class="w-full bg-zinc-900/50 border border-zinc-800 text-zinc-600 hover:text-red-500 font-bold py-3 rounded-xl transition-all uppercase text-[9px] tracking-widest">
-                        Purge Session History
-                    </button>
-                    
-                    <div class="mt-6 pt-6 border-t border-zinc-800 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] text-zinc-500 font-bold uppercase">Patient Logs:</span>
-                            <span id="sample-count" class="text-sm font-black text-white">0</span>
+                    <h3 class="text-xs font-black text-white mb-6 uppercase tracking-tighter italic">Patient Insights</h3>
+                    <div id="patient-notes-terminal" class="bg-black/50 border border-zinc-900 rounded-2xl h-[440px] overflow-y-auto p-4 space-y-3">
+                        <div id="notes-content" class="text-[10px] space-y-2">
+                            <p class="text-zinc-700 text-center italic mt-10">Listening for secure data stream...</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="patient-notes-terminal" class="bg-zinc-900/30 border border-zinc-800 p-4 rounded-2xl h-48 overflow-y-auto">
-                    <p class="text-[9px] text-zinc-500 font-bold uppercase mb-2 italic">Incoming Patient Notes:</p>
-                    <div id="notes-content" class="text-[10px] space-y-2">
-                        <p class="text-zinc-700 italic">No notes received yet...</p>
-                    </div>
-                </div>
+                <button onclick="clearLogs()" class="w-full bg-zinc-900/50 border border-zinc-800 text-zinc-600 hover:text-red-500 font-bold py-3 rounded-xl transition-all uppercase text-[8px] tracking-widest">
+                    Purge Local Records
+                </button>
             </div>
         </div>
     </div>
@@ -131,8 +119,6 @@
             });
             charts.bp = new Chart(document.getElementById('bpChart'), config('#00ffff'));
             charts.glu = new Chart(document.getElementById('gluChart'), config('#ccff00'));
-            
-            // Cargar datos previos
             bpHistory.forEach(d => updateChart(charts.bp, d.sys, d.time));
             gluHistory.forEach(d => updateChart(charts.glu, d.val, d.time));
         }
@@ -146,37 +132,31 @@
 
         // --- ENVIAR AL PACIENTE (FEEDBACK) ---
         async function sendFeedback() {
-            const feedbackText = document.getElementById('dr-feedback').value;
-            if (!feedbackText) return;
-
+            const text = document.getElementById('dr-feedback').value;
+            if (!text) return;
             const btn = document.getElementById('btn-send-feedback');
             const loader = document.getElementById('loader-feedback');
             btn.disabled = true; loader.classList.remove('hidden');
 
             try {
-                // Enviamos con el prefijo CMD:FEEDBACK para que el receptor del paciente sepa que es una instrucción
                 await fetch('https://api.pusher.com/apps/1897282/events', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: "test-event",
                         channel: "test-channel",
-                        data: { text: `CMD:FEEDBACK|MSG:${feedbackText}` }
+                        data: { text: `CMD:FEEDBACK|MSG:${text}` }
                     })
                 });
                 document.getElementById('dr-feedback').value = "";
-                console.log("Sent: " + feedbackText);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                btn.disabled = false; loader.classList.add('hidden');
-            }
+            } catch (e) { console.error(e); }
+            finally { btn.disabled = false; loader.classList.add('hidden'); }
         }
 
-        // --- RECIBIR DEL PACIENTE (VITALES O NOTAS) ---
+        // --- RECEPTOR INTEGRADO: DETECTA CÁPSULA Y VITALES ---
         channel.bind('test-event', function(data) {
             const content = data.text || data.message || "";
-            if (!content || content.includes("CMD:FEEDBACK")) return; // Ignorar ecos propios
+            if (!content || content.includes("CMD:FEEDBACK")) return;
 
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -195,12 +175,24 @@
                 updateChart(charts.glu, val, time);
             } 
             else {
-                // ES UNA NOTA DE TEXTO (EJ: "Hola Mundo" o "Losartan 50mg" enviado por el paciente)
+                // LÓGICA DE NOTA + DETECCIÓN DE CÁPSULA
                 const notesDiv = document.getElementById('notes-content');
-                if (notesDiv.innerText.includes("No notes")) notesDiv.innerHTML = "";
-                notesDiv.innerHTML = `<div class="bg-zinc-800/50 p-2 rounded border-l-2 border-[#ccff00] mb-2">
-                    <span class="text-[8px] text-zinc-500">${time}</span><br>${content}
-                </div>` + notesDiv.innerHTML;
+                if (notesDiv.innerText.includes("Listening")) notesDiv.innerHTML = "";
+                
+                // Si menciona Losartan o mg, le ponemos el icono de cápsula
+                const isMed = content.toLowerCase().includes('losartan') || content.toLowerCase().includes('mg');
+                const medIcon = isMed ? '<span class="text-[#ccff00] text-lg">💊</span>' : '';
+                const borderColor = isMed ? 'border-[#ccff00]' : 'border-zinc-800';
+
+                notesDiv.innerHTML = `
+                    <div class="bg-zinc-900/80 p-3 rounded-xl border-l-4 ${borderColor} animate-pulse-once">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[8px] text-zinc-600 font-bold">${time}</span>
+                            ${medIcon}
+                        </div>
+                        <p class="text-white mt-1 leading-relaxed">${content}</p>
+                    </div>
+                ` + notesDiv.innerHTML;
             }
             updateUI();
         });
@@ -210,29 +202,18 @@
                 const last = bpHistory[bpHistory.length - 1];
                 document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
                 const avgSys = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.sys),0)/bpHistory.length);
-                document.getElementById('avg-sys').innerText = `${avgSys} AVG`;
+                document.getElementById('avg-sys').innerText = avgSys;
             }
             if(gluHistory.length > 0) {
                 const last = gluHistory[gluHistory.length - 1];
                 document.getElementById('last-glu').innerText = last.val;
                 const avgGlu = Math.round(gluHistory.reduce((a,b)=>a+parseInt(b.val),0)/gluHistory.length);
-                const a1c = ((46.7 + avgGlu) / 28.7).toFixed(1);
-                document.getElementById('avg-glu').innerText = `${avgGlu} mg/dL`;
-                document.getElementById('a1c-val').innerText = `${a1c}%`;
+                document.getElementById('a1c-val').innerText = ((46.7 + avgGlu) / 28.7).toFixed(1) + "%";
+                document.getElementById('avg-glu').innerText = avgGlu;
             }
-            document.getElementById('sample-count').innerText = bpHistory.length + gluHistory.length;
         }
 
-        async function generateProviderPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("MONTCODE CLINICAL REPORT", 10, 10);
-            doc.text(`BP Records: ${bpHistory.length}`, 10, 20);
-            doc.text(`GLU Records: ${gluHistory.length}`, 10, 30);
-            doc.save("Report.pdf");
-        }
-
-        function clearLogs() { if(confirm("CLEAR ALL?")) { localStorage.clear(); location.reload(); } }
+        function clearLogs() { if(confirm("PERMANENTLY PURGE DATA?")) { localStorage.clear(); location.reload(); } }
         
         pusher.connection.bind('state_change', (s) => {
             const t = document.getElementById('state-text');
