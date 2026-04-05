@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RECEIVER TACTICAL TEST</title>
+    <title>RECEIVER TACTICAL - MontCode™</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -20,17 +20,17 @@
         </div>
 
         <div id="log-console" class="bg-zinc-950 border-x border-b border-zinc-800 p-4 h-[400px] overflow-y-auto text-[11px] leading-relaxed shadow-2xl">
-            <p class="text-zinc-700 italic">[SYSTEM] Awaiting tactical pulse...</p>
+            <p class="text-zinc-700 italic">[SYSTEM] Awaiting tactical pulse on test-channel...</p>
         </div>
 
         <div class="mt-4 flex justify-between items-center text-[9px] text-zinc-600 uppercase tracking-widest">
             <span>Cluster: US2</span>
-            <span id="channel-name">Channel: --</span>
+            <span id="channel-name">Channel: test-channel</span>
         </div>
     </div>
 
     <script>
-        // MEMORIA LOCAL PARA TENDENCIAS (Succión)
+        // MEMORIA LOCAL PARA TENDENCIAS
         let bpHistory = JSON.parse(localStorage.getItem('montcode_bp_history')) || [];
 
         Pusher.logToConsole = true;
@@ -63,22 +63,22 @@
             }
         });
 
-        const targetID = "TEST-ID"; 
-        const fullChannelName = 'rescue-' + targetID;
-        const channel = pusher.subscribe(fullChannelName);
+        // SINTONIZACIÓN MANUAL SEGÚN PRUEBA EXITOSA
+        const targetChannel = "test-channel"; 
+        const channel = pusher.subscribe(targetChannel);
         
-        channelDisplay.innerText = `Listening: ${fullChannelName}`;
+        channelDisplay.innerText = `Listening: ${targetChannel}`;
 
         channel.bind('pusher:subscription_succeeded', () => {
-            addLog(`SUBSCRIPTION SUCCESS: Active on '${fullChannelName}'`, "#ccff00");
+            addLog(`SUBSCRIPTION SUCCESS: Active on '${targetChannel}'`, "#ccff00");
         });
 
-        // ESCUCHADOR CON LÓGICA DE SUCCIÓN
-        channel.bind('new-reading', function(data) {
-            // El contenido puede venir en 'message' o 'provider' según el Relay
-            const content = data.provider || data.message || "";
+        // ESCUCHADOR DE EVENTO 'test-event'
+        channel.bind('test-event', function(data) {
+            // En tu relay exitoso, el texto viene en 'data.text'
+            const content = data.text || "";
             
-            // EFECTO VISUAL DE FLASH
+            // Efecto de parpadeo al recibir
             document.body.style.backgroundColor = "#111";
             setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 100);
 
@@ -86,9 +86,9 @@
             if (content.startsWith("CMD:BP")) {
                 addLog("!!! BP VITAL SIGN DETECTED !!!", "#00ffff");
                 
-                // Procesar el String: CMD:BP|SYS:120|DIA:80
                 try {
                     const parts = content.split('|');
+                    // Extraemos los valores de CMD:BP|SYS:120|DIA:80
                     const sysValue = parts[1].split(':')[1];
                     const diaValue = parts[2].split(':')[1];
 
@@ -98,17 +98,17 @@
                         dia: parseInt(diaValue)
                     };
 
-                    // GUARDADO EN MEMORIA (Succión Exitosa)
+                    // GUARDADO EN MEMORIA (Succión)
                     bpHistory.push(registro);
                     localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
                     
-                    addLog(`SUCTION SUCCESS: Saved ${sysValue}/${diaValue} to LocalDB`, "#00ffff");
-                    console.log("DB Update:", bpHistory);
+                    addLog(`SUCTION SUCCESS: Saved BP ${sysValue}/${diaValue}`, "#00ffff");
+                    console.log("Database Update:", bpHistory);
                 } catch(e) {
                     addLog("PARSE ERROR: Vital data corrupted", "#ff3b3b");
                 }
             } else {
-                // CHAT NORMAL
+                // Si no es un comando, es mensaje normal
                 addLog(`PAYLOAD: ${content}`, "#fff");
             }
         });
