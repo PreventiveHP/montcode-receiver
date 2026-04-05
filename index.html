@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONTCODE - COMMAND CENTER v6.2</title>
+    <title>MONTCODE - VITAL STREAM MONITOR v6.3</title>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,29 +19,28 @@
 <body class="bg-[#050505] text-zinc-300 font-mono p-6 min-h-screen">
 
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-start mb-8 border-b border-zinc-800/50 pb-6">
-            <div class="relative">
-                <div class="absolute -left-4 top-0 w-1 h-full bg-[#ccff00]"></div>
-                <h1 class="text-[#ccff00] text-3xl font-black italic tracking-tighter uppercase leading-none">
-                    MONTCODE<span class="text-white ml-2 opacity-80">COMMAND CENTER</span>
-                </h1>
-                <div class="flex items-center gap-4 mt-2">
-                    <p class="text-[10px] text-zinc-500 uppercase tracking-[0.4em]">STATION: <span class="text-zinc-200">PROVIDER_ALPHA_6.2</span></p>
-                    <span class="text-[9px] bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded border border-blue-800/50 font-bold italic">LAPTOP VIEW OPTIMIZED</span>
+        <div class="flex justify-between items-center mb-8 border-b border-zinc-800/50 pb-6">
+            <div class="flex items-center gap-6">
+                <img src="logo.png.jpg" alt="MontCode Logo" class="w-16 h-16 object-contain rounded-xl border border-zinc-800 shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+                <div>
+                    <h1 class="text-[#ccff00] text-3xl font-black italic tracking-tighter uppercase leading-none">
+                        MONTCODE<span class="text-white ml-2 opacity-80">VITAL STREAM MONITOR</span>
+                    </h1>
+                    <p class="text-[10px] text-zinc-400 uppercase tracking-[0.2em] mt-1 font-bold">
+                        Created by Provider • Tested by Patient • Trusted for Life
+                    </p>
                 </div>
             </div>
             <div class="text-right flex flex-col items-end gap-2">
-                <span id="state-text" class="text-[10px] font-bold uppercase px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-yellow-500 shadow-inner">SIGNAL SEARCHING...</span>
-                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">DR: MANUEL MONTALVAN, APRN</p>
+                <span id="state-text" class="text-[10px] font-bold uppercase px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-yellow-500">SIGNAL SEARCHING...</span>
+                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">STATION: PROVIDER_SECURE_NODE_6.3</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
             <div class="lg:col-span-8 space-y-6">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass-panel depth-card p-6 rounded-3xl relative group overflow-hidden">
+                    <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
                         <div class="flex justify-between items-start mb-4">
                             <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic">> BLOOD PRESSURE</p>
                             <span id="bp-status-badge" class="text-[9px] px-3 py-1 rounded-full font-bold uppercase bg-zinc-800 text-zinc-500">INIT</span>
@@ -50,16 +49,16 @@
                             <span id="last-bp" class="text-6xl font-black text-[#00ffff] tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,255,0.3)]">--/--</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mmHg</span>
                         </div>
-                        <div class="h-24 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
+                        <div class="h-32 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
                             <canvas id="bpChart"></canvas>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold">
-                            <div><p class="text-zinc-600">AVG SYSTOLIC</p><p id="avg-sys" class="text-white">--</p></div>
-                            <div><p class="text-zinc-600">MAP (HEMO)</p><p id="map-val" class="text-cyan-500">--</p></div>
+                            <div><p class="text-zinc-600 uppercase">Avg Systolic</p><p id="avg-sys" class="text-white">--</p></div>
+                            <div><p class="text-zinc-600 uppercase">MAP (Hemo)</p><p id="map-val" class="text-cyan-500">--</p></div>
                         </div>
                     </div>
 
-                    <div class="glass-panel depth-card p-6 rounded-3xl relative group overflow-hidden">
+                    <div class="glass-panel depth-card p-6 rounded-3xl relative overflow-hidden">
                         <div class="flex justify-between items-start mb-4">
                             <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest italic">> GLUCOSE MONITOR</p>
                             <span id="glu-status-badge" class="text-[9px] px-3 py-1 rounded-full font-bold uppercase bg-zinc-800 text-zinc-500">INIT</span>
@@ -68,56 +67,47 @@
                             <span id="last-glu" class="text-6xl font-black text-[#ccff00] tracking-tighter drop-shadow-[0_0_15px_rgba(204,255,0,0.3)]">---</span>
                             <span class="text-xs text-zinc-600 font-bold italic">mg/dL</span>
                         </div>
-                        <div class="h-24 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
+                        <div class="h-32 w-full bg-black/40 rounded-xl p-2 border border-zinc-800/50">
                             <canvas id="gluChart"></canvas>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] border-t border-zinc-800/50 pt-4 font-bold">
-                            <div><p class="text-zinc-600">GLU AVG</p><p id="avg-glu" class="text-white">--</p></div>
-                            <div><p class="text-zinc-600">EST. A1C</p><p id="a1c-val" class="text-[#ccff00]">--%</p></div>
+                            <div><p class="text-zinc-600 uppercase">GLU AVG</p><p id="avg-glu" class="text-white">--</p></div>
+                            <div><p class="text-zinc-600 uppercase">EST. A1C</p><p id="a1c-val" class="text-[#ccff00]">--%</p></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel rounded-2xl p-4">
-                    <div class="flex items-center gap-2 mb-3 px-2">
-                        <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest underline decoration-[#ccff00]">Live Clinical Data Stream</p>
-                    </div>
-                    <div id="log-console" class="h-48 overflow-y-auto font-mono text-[10px] p-2 space-y-1">
-                        <p class="text-zinc-700 italic">>> System initialized. Standing by for MontCode Rescue payloads...</p>
-                    </div>
+                <div class="glass-panel rounded-3xl p-6 border-l-4 border-blue-500">
+                    <p class="text-[10px] text-blue-500 font-black mb-4 uppercase tracking-[0.2em] italic">Provider Clinical Feedback</p>
+                    <textarea id="dr-feedback" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors h-24 placeholder-zinc-700" placeholder="Enter clinical recommendations..."></textarea>
                 </div>
             </div>
 
             <div class="lg:col-span-4 space-y-4">
                 <div class="glass-panel depth-card p-6 rounded-3xl border-t-2 border-t-[#ccff00]">
-                    <h3 class="text-xs font-black text-white mb-6 uppercase tracking-tighter italic">Provider Actions</h3>
-                    
+                    <h3 class="text-xs font-black text-white mb-6 uppercase tracking-tighter italic">Clinical Operations</h3>
                     <button onclick="generateProviderPDF()" class="w-full bg-[#ccff00] hover:bg-white text-black font-black py-5 rounded-2xl transition-all duration-300 shadow-lg shadow-[#ccff00]/10 flex flex-col items-center group mb-4">
                         <span class="text-sm uppercase tracking-tighter">Export EMR Report</span>
-                        <span class="text-[9px] opacity-60 font-bold">PDF GRADO CLÍNICO</span>
+                        <span class="text-[9px] opacity-60 font-bold">PDF CLINICAL GRADE</span>
                     </button>
-
                     <button onclick="clearLogs()" class="w-full bg-zinc-900/50 border border-zinc-800 text-zinc-600 hover:text-red-500 font-bold py-3 rounded-xl transition-all uppercase text-[9px] tracking-widest mb-6">
-                        Purge Station History
+                        Purge History
                     </button>
-
                     <div class="space-y-4 border-t border-zinc-800 pt-6">
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] text-zinc-500 font-bold">TOTAL SAMPLES:</span>
                             <span id="sample-count" class="text-sm font-black text-white">0</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] text-zinc-500 font-bold">STATION HEALTH:</span>
-                            <span class="text-[10px] font-black text-green-500 italic">OPTIMIZED</span>
+                        <div class="flex justify-between items-center text-[10px]">
+                            <span class="text-zinc-500 font-bold">INTEGRITY:</span>
+                            <span class="font-black text-green-500 italic">SECURE / LOCAL DB</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="p-6 bg-blue-900/10 border border-blue-900/30 rounded-3xl">
-                    <p class="text-[9px] text-blue-400 font-bold mb-2 italic">DR. NOTE:</p>
-                    <p class="text-[10px] text-blue-200/60 leading-relaxed italic uppercase">
-                        "Recuerde que este monitor extrae datos locales 'succionados' del kit del paciente. Siempre valide con doppler o laboratorio central."
+                <div class="p-6 bg-zinc-900/40 border border-zinc-800 rounded-3xl">
+                    <p class="text-[9px] text-zinc-500 font-bold mb-3 italic uppercase tracking-widest">Clinical Data Notice:</p>
+                    <p class="text-[10px] text-zinc-500/80 leading-relaxed italic uppercase">
+                        This data is for wellness monitoring and triage optimization; it does not replace official EMR records.
                     </p>
                 </div>
             </div>
@@ -134,22 +124,23 @@
         function initCharts() {
             const chartConfig = (color) => ({
                 type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 2, tension: 0.4, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+                data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: color }] },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { x: { ticks: { color: '#444', font: { size: 8 } }, grid: { display: false } }, y: { display: false } } 
+                }
             });
-
             charts.bp = new Chart(document.getElementById('bpChart'), chartConfig('#00ffff'));
             charts.glu = new Chart(document.getElementById('gluChart'), chartConfig('#ccff00'));
-            
-            // Cargar datos previos
-            bpHistory.forEach(d => updateChart(charts.bp, d.sys));
-            gluHistory.forEach(d => updateChart(charts.glu, d.val));
+            bpHistory.forEach(d => updateChart(charts.bp, d.sys, d.time));
+            gluHistory.forEach(d => updateChart(charts.glu, d.val, d.time));
         }
 
-        function updateChart(chart, val) {
-            chart.data.labels.push('');
+        function updateChart(chart, val, timeLabel) {
+            chart.data.labels.push(timeLabel);
             chart.data.datasets[0].data.push(val);
-            if (chart.data.labels.length > 20) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+            if (chart.data.labels.length > 10) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
             chart.update('none');
         }
 
@@ -167,26 +158,19 @@
                 const avgDia = Math.round(bpHistory.reduce((a,b)=>a+parseInt(b.dia),0)/bpHistory.length);
                 const map = Math.round((avgSys + (2 * avgDia)) / 3);
                 const cls = getAHAClass(last.sys, last.dia);
-
                 document.getElementById('last-bp').innerText = `${last.sys}/${last.dia}`;
                 document.getElementById('map-val').innerText = `${map} mmHg`;
                 document.getElementById('avg-sys').innerText = `${avgSys} AVG`;
-                
                 const badge = document.getElementById('bp-status-badge');
-                badge.innerText = cls.l;
-                badge.style.color = cls.c;
-                badge.style.backgroundColor = cls.c + "22";
+                badge.innerText = cls.l; badge.style.color = cls.c; badge.style.backgroundColor = cls.c + "22";
             }
-
             if(gluHistory.length > 0) {
                 const last = gluHistory[gluHistory.length - 1];
                 const avgGlu = Math.round(gluHistory.reduce((a,b)=>a+parseInt(b.val),0)/gluHistory.length);
                 const a1c = ((46.7 + avgGlu) / 28.7).toFixed(1);
-
                 document.getElementById('last-glu').innerText = last.val;
                 document.getElementById('a1c-val').innerText = `${a1c}%`;
                 document.getElementById('avg-glu').innerText = `${avgGlu} mg/dL`;
-                
                 const gBadge = document.getElementById('glu-status-badge');
                 gBadge.innerText = last.val > 140 ? "ELEVATED" : "OPTIMAL";
                 gBadge.style.color = last.val > 140 ? "#fbbf24" : "#22c55e";
@@ -197,61 +181,48 @@
         async function generateProviderPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFillColor(0,0,0); doc.rect(0,0,210,50,'F');
-            doc.setTextColor(204,255,0); doc.setFontSize(26); doc.setFont(undefined, 'bold');
-            doc.text("MONTCODE CLINICAL EMR", 15, 25);
+            const feedback = document.getElementById('dr-feedback').value;
+            doc.setFillColor(15,15,15); doc.rect(0,0,210,50,'F');
+            doc.setTextColor(204,255,0); doc.setFontSize(22); doc.text("MONTCODE VITAL STREAM REPORT", 15, 25);
             doc.setTextColor(255,255,255); doc.setFontSize(9);
-            doc.text(`STATION: PROVIDER-ALPHA | DATE: ${new Date().toLocaleString()}`, 15, 38);
-            doc.text(`PROVIDER: MANUEL MONTALVAN, APRN, FNP-C`, 15, 43);
-
-            doc.setTextColor(0,0,0); doc.setFontSize(14);
-            doc.text("I. HEMODYNAMIC TRENDS", 15, 70);
-            doc.setFontSize(10);
-            doc.text(`Last BP Reading: ${document.getElementById('last-bp').innerText} mmHg`, 15, 80);
-            doc.text(`Clinical MAP: ${document.getElementById('map-val').innerText}`, 15, 87);
-
-            doc.setFontSize(14);
-            doc.text("II. METABOLIC TRENDS", 15, 110);
-            doc.setFontSize(10);
-            doc.text(`Last Glucose: ${document.getElementById('last-glu').innerText} mg/dL`, 15, 120);
-            doc.text(`Estimated A1C: ${document.getElementById('a1c-val').innerText}`, 15, 127);
-
-            doc.save(`MONTCODE_EMR_${Date.now()}.pdf`);
+            doc.text(`DATE: ${new Date().toLocaleString()} | NODE: SECURE_ALPHA_6.3`, 15, 38);
+            doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("I. HEMODYNAMIC (AHA)", 15, 70);
+            doc.text(`BP: ${document.getElementById('last-bp').innerText} | MAP: ${document.getElementById('map-val').innerText}`, 15, 80);
+            doc.text("II. METABOLIC (ADA)", 15, 100);
+            doc.text(`GLU: ${document.getElementById('last-glu').innerText} | EST. A1C: ${document.getElementById('a1c-val').innerText}`, 15, 110);
+            if(feedback) { doc.text("III. PROVIDER NOTES", 15, 130); doc.setFontSize(10); doc.text(feedback, 15, 140, { maxWidth: 180 }); }
+            doc.setFontSize(8); doc.setTextColor(150,150,150);
+            doc.text("Disclaimer: All info provided is not based on official medical records.", 15, 280);
+            doc.save(`VITAL_STREAM_${Date.now()}.pdf`);
         }
 
         const channel = pusher.subscribe("test-channel");
         channel.bind('test-event', function(data) {
             const content = data.text || "";
-            const consoleObj = document.getElementById('log-console');
-            
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             if (content.startsWith("CMD:BP")) {
                 const parts = content.split('|');
-                const sys = parts[1].split(':')[1];
-                const dia = parts[2].split(':')[1];
-                bpHistory.push({ time: new Date().toLocaleTimeString(), sys, dia });
+                const sys = parts[1].split(':')[1]; const dia = parts[2].split(':')[1];
+                bpHistory.push({ time: currentTime, sys, dia });
                 localStorage.setItem('montcode_bp_history', JSON.stringify(bpHistory));
-                updateChart(charts.bp, sys);
-                consoleObj.innerHTML += `<p class="text-cyan-400 font-bold">>> SUCCESS: BP SUCTION [${sys}/${dia}]</p>`;
+                updateChart(charts.bp, sys, currentTime);
             } else if (content.startsWith("CMD:GLU")) {
                 const val = content.split('|')[1].split(':')[1];
-                gluHistory.push({ time: new Date().toLocaleTimeString(), val });
+                gluHistory.push({ time: currentTime, val });
                 localStorage.setItem('montcode_glu_history', JSON.stringify(gluHistory));
-                updateChart(charts.glu, val);
-                consoleObj.innerHTML += `<p class="text-[#ccff00] font-bold">>> SUCCESS: GLU SUCTION [${val} mg/dL]</p>`;
+                updateChart(charts.glu, val, currentTime);
             }
-            consoleObj.scrollTop = consoleObj.scrollHeight;
             updateUI();
         });
 
         pusher.connection.bind('state_change', (s) => {
             const txt = document.getElementById('state-text');
             txt.innerText = s.current.toUpperCase();
-            if(s.current==='connected') { txt.style.color="#ccff00"; txt.classList.remove('animate-pulse'); }
+            if(s.current==='connected') { txt.style.color="#ccff00"; }
         });
 
         window.onload = () => { initCharts(); updateUI(); };
-
-        function clearLogs() { if(confirm("ERASE ALL LOCAL CLINICAL DATA?")) { localStorage.clear(); location.reload(); } }
+        function clearLogs() { if(confirm("ERASE ALL CLINICAL DATA?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
